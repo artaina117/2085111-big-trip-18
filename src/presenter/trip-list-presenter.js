@@ -11,9 +11,10 @@ export default class TripListPresenter {
   init = (tripListContainer) => {
     this.tripListContainer = tripListContainer;
 
+    render(new SortView(), this.tripListContainer);
+    render(new CreationFormView(), this.tripListContainer);
+
     render(this.tripListComponent, this.tripListContainer);
-    render(new SortView(), this.tripListComponent.getElement());
-    render(new CreationFormView(), this.tripListComponent.getElement());
     render(new EditFormView(), this.tripListComponent.getElement());
 
     for (let i = 0; i < 3; i++) {
