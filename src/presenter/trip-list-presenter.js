@@ -8,17 +8,19 @@ import WaypointView from '../view/waypoint-view.js';
 export default class TripListPresenter {
   tripListComponent = new TripListView();
 
-  init = (tripListContainer) => {
+  init = (tripListContainer, waypointsModel) => {
     this.tripListContainer = tripListContainer;
+    this.waypointsModel = waypointsModel;
+    this.waypoints = [...this.waypointsModel.getWaypoints()];
 
     render(new SortView(), this.tripListContainer);
     render(new CreationFormView(), this.tripListContainer);
 
     render(this.tripListComponent, this.tripListContainer);
-    render(new EditFormView(), this.tripListComponent.getElement());
+    render(new EditFormView(this.waypoints[0]), this.tripListComponent.getElement());
 
-    for (let i = 0; i < 3; i++) {
-      render(new WaypointView(), this.tripListComponent.getElement());
+    for (let i = 1; i < this.waypoints.length; i++) {
+      render(new WaypointView(this.waypoints[i]), this.tripListComponent.getElement());
     }
   };
 }
