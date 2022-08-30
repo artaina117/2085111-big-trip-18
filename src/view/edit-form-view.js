@@ -12,6 +12,9 @@ const getOffers = (offersByType, offersIds) => {
   return offersArray;
 };
 
+//мой последний вопрос был про вот эту функцию. У инпутов здесь есть id, которые в оригинале разные у разных офферов.
+//у меня сейчас они все абсолютно одинаковы - id="event-offer-luggage-1" name="event-offer-luggage"
+//хотя в самом офере может быть совсем не luggage.
 const createEditFormOffersTemplate = (offers, checkedOffers) => `
   <section class="event__section  event__section--offers">
     <h3 class="event__section-title  event__section-title--offers">Offers</h3>
@@ -159,22 +162,25 @@ const createEditFormTemplate = (waypoint) => {
 };
 
 export default class EditFormView {
+  #waypoint = null;
+  #element = null;
+
   constructor(waypoint) {
-    this.waypoint = waypoint;
+    this.#waypoint = waypoint;
   }
 
-  getTemplate() {
-    return createEditFormTemplate(this.waypoint);
+  get template() {
+    return createEditFormTemplate(this.#waypoint);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
     }
-    return this.element;
+    return this.#element;
   }
 
   removeElement() {
-    this.element = null;
+    this.#element = null;
   }
 }
