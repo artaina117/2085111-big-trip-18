@@ -36,7 +36,6 @@ const compareTime = (dateFrom, dateTo) => {
     duration += '0';
   }
   duration += `${minutes}M`;
-  // можно ещё сделать проверку на дату и добавлять дату. Но в файле этого не было, и я решила, пусть пока выводит 25H, если что.
 
   return duration;
 };

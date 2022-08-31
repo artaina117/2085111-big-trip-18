@@ -1,7 +1,6 @@
 import {render} from '../render.js';
 import TripListView from '../view/trip-list-view.js';
 import CreationFormView from '../view/creation-form-view.js';
-// import EditFormView from '../view/edit-form-view.js';
 import SortView from '../view/sort-view.js';
 import WaypointView from '../view/waypoint-view.js';
 import EditFormView from '../view/edit-form-view.js';
@@ -22,7 +21,6 @@ export default class TripListPresenter {
     render(new CreationFormView(), this.#tripListContainer);
 
     render(this.#tripListComponent, this.#tripListContainer);
-    // render(new EditFormView(this.#waypoints[0]), this.#tripListComponent.element);
 
     for (let i = 0; i < this.#waypoints.length; i++) {
       this.#renderWaypoint(this.#waypoints[i]);
@@ -56,6 +54,11 @@ export default class TripListPresenter {
 
     waypointEditComponent.element.querySelector('form').addEventListener('submit', (evt) => {
       evt.preventDefault();
+      replaceFormToPoint();
+      document.removeEventListener('keydown', onEscKeyDown);
+    });
+
+    waypointEditComponent.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
       replaceFormToPoint();
       document.removeEventListener('keydown', onEscKeyDown);
     });

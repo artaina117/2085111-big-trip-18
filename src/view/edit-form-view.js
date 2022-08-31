@@ -12,9 +12,6 @@ const getOffers = (offersByType, offersIds) => {
   return offersArray;
 };
 
-//мой последний вопрос был про вот эту функцию. У инпутов здесь есть id, которые в оригинале разные у разных офферов.
-//у меня сейчас они все абсолютно одинаковы - id="event-offer-luggage-1" name="event-offer-luggage"
-//хотя в самом офере может быть совсем не luggage.
 const createEditFormOffersTemplate = (offers, checkedOffers) => `
   <section class="event__section  event__section--offers">
     <h3 class="event__section-title  event__section-title--offers">Offers</h3>
