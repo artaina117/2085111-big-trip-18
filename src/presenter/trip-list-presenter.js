@@ -1,9 +1,9 @@
 import {render} from '../render.js';
 import TripListView from '../view/trip-list-view.js';
-import CreationFormView from '../view/creation-form-view.js';
 import SortView from '../view/sort-view.js';
 import WaypointView from '../view/waypoint-view.js';
 import EditFormView from '../view/edit-form-view.js';
+import NoWaypointView from '../view/no-waypoints-view.js';
 
 export default class TripListPresenter {
   #tripListContainer = null;
@@ -12,18 +12,27 @@ export default class TripListPresenter {
 
   #tripListComponent = new TripListView();
 
-  init = (tripListContainer, waypointsModel) => {
+  constructor(tripListContainer, waypointsModel) {
     this.#tripListContainer = tripListContainer;
     this.#waypointsModel = waypointsModel;
+  }
+
+  init = () => {
     this.#waypoints = [...this.#waypointsModel.waypoints];
+    this.#renderWaypointsList();
+  };
 
-    render(new SortView(), this.#tripListContainer);
-    render(new CreationFormView(), this.#tripListContainer);
+  #renderWaypointsList = () => {
+    if (this.#waypoints.length === 0) {
+      render(new NoWaypointView(), this.#tripListContainer);
+    } else {
+      render(new SortView(), this.#tripListContainer);
 
-    render(this.#tripListComponent, this.#tripListContainer);
+      render(this.#tripListComponent, this.#tripListContainer);
 
-    for (let i = 0; i < this.#waypoints.length; i++) {
-      this.#renderWaypoint(this.#waypoints[i]);
+      for (let i = 0; i < this.#waypoints.length; i++) {
+        this.#renderWaypoint(this.#waypoints[i]);
+      }
     }
   };
 

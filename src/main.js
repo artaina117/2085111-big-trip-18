@@ -6,9 +6,9 @@ import WaypointsModel from './model/waypoints-model.js';
 const siteFilterElement = document.querySelector('.trip-controls__filters');
 const siteTripListElement = document.querySelector('.trip-events');
 
-const tripListPresenter = new TripListPresenter();
 const waypointsModel = new WaypointsModel();
+const tripListPresenter = new TripListPresenter(siteTripListElement, waypointsModel);
 
 render(new FiltersView(), siteFilterElement);
 
-tripListPresenter.init(siteTripListElement, waypointsModel);
+tripListPresenter.init();
