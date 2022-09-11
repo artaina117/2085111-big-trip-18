@@ -1,5 +1,5 @@
-import {createElement} from '../render.js';
-import {humanizeFullDate} from '../utils.js';
+import AbstractView from '../framework/view/abstract-view.js';
+import {humanizeFullDate} from '../utils/waypoint.js';
 import {destinations} from '../mock/destinations.js';
 import {arrayOfOffers} from '../mock/offers.js';
 
@@ -158,11 +158,11 @@ const createEditFormTemplate = (waypoint) => {
   );
 };
 
-export default class EditFormView {
+export default class EditFormView extends AbstractView {
   #waypoint = null;
-  #element = null;
 
   constructor(waypoint) {
+    super();
     this.#waypoint = waypoint;
   }
 
@@ -170,14 +170,23 @@ export default class EditFormView {
     return createEditFormTemplate(this.#waypoint);
   }
 
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-    return this.#element;
-  }
+  setFormSubmitHandler = (callback) => {
+    this._callback.formSubmit = callback;
+    this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
+  };
 
-  removeElement() {
-    this.#element = null;
-  }
+  #formSubmitHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.formSubmit();
+  };
+
+  setSaveEditFormClickHandler = (callback) => {
+    this._callback.saveEditFormClick = callback;
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#saveEditFormClickHandler);
+  };
+
+  #saveEditFormClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.saveEditFormClick();
+  };
 }

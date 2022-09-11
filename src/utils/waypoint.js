@@ -3,15 +3,6 @@ import dayjs from 'dayjs';
 const MINUTES_PER_HOUR = 60;
 const TIME_COUNT = 10;
 
-const getRandomInteger = (a = 0, b = 1) => {
-  const lower = Math.ceil(Math.min(a, b));
-  const upper = Math.floor(Math.max(a, b));
-
-  return Math.floor(lower + Math.random() * (upper - lower + 1));
-};
-
-const getRandomArrayElement = (elements) => elements[getRandomInteger(0, elements.length - 1)];
-
 const humanizeTime = (date) => dayjs(date).format('HH:mm');
 const humanizeDate = (date) => dayjs(date).format('MMM D');
 const humanizeFullDate = (date) => dayjs(date).format('DD/MM/YY HH:mm');
@@ -40,4 +31,4 @@ const compareTime = (dateFrom, dateTo) => {
   return duration;
 };
 
-export {getRandomInteger, getRandomArrayElement, humanizeDate, humanizeTime, compareTime, humanizeFullDate};
+export {humanizeDate, humanizeTime, compareTime, humanizeFullDate};

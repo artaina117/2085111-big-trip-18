@@ -1,4 +1,4 @@
-import {getRandomInteger} from '../utils.js';
+import {getRandomInteger} from '../utils/common.js';
 
 const names = [
   'Chamonix', 'Singapore', 'Milan', 'Shanghai', 'Barcelona', 'San Diego', 'Rome', 'Birmingham', 'Paris', 'London'
