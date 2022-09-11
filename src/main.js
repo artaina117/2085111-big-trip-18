@@ -1,6 +1,6 @@
 import FiltersView from './view/filter-view.js';
 import TripListPresenter from './presenter/trip-list-presenter.js';
-import {render} from './render.js';
+import {render} from './framework/render.js';
 import WaypointsModel from './model/waypoints-model.js';
 
 const siteFilterElement = document.querySelector('.trip-controls__filters');

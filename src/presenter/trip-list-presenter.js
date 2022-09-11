@@ -1,4 +1,4 @@
-import {render} from '../render.js';
+import {render, replace} from '../framework/render.js';
 import TripListView from '../view/trip-list-view.js';
 import SortView from '../view/sort-view.js';
 import WaypointView from '../view/waypoint-view.js';
@@ -41,11 +41,11 @@ export default class TripListPresenter {
     const waypointEditComponent = new EditFormView(waypoint);
 
     const replacePointToForm = () => {
-      this.#tripListComponent.element.replaceChild(waypointEditComponent.element, waypointComponent.element);
+      replace(waypointEditComponent, waypointComponent);
     };
 
     const replaceFormToPoint = () => {
-      this.#tripListComponent.element.replaceChild(waypointComponent.element, waypointEditComponent.element);
+      replace(waypointComponent, waypointEditComponent);
     };
 
     const onEscKeyDown = (evt) => {
@@ -56,18 +56,17 @@ export default class TripListPresenter {
       }
     };
 
-    waypointComponent.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
+    waypointComponent.setEditClickHandler(() => {
       replacePointToForm();
       document.addEventListener('keydown', onEscKeyDown);
     });
 
-    waypointEditComponent.element.querySelector('form').addEventListener('submit', (evt) => {
-      evt.preventDefault();
+    waypointEditComponent.setFormSubmitHandler(() => {
       replaceFormToPoint();
       document.removeEventListener('keydown', onEscKeyDown);
     });
 
-    waypointEditComponent.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
+    waypointEditComponent.setSaveEditFormClickHandler(() => {
       replaceFormToPoint();
       document.removeEventListener('keydown', onEscKeyDown);
     });
