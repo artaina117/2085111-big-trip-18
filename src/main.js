@@ -9,6 +9,6 @@ const siteTripListElement = document.querySelector('.trip-events');
 const waypointsModel = new WaypointsModel();
 const tripListPresenter = new TripListPresenter(siteTripListElement, waypointsModel);
 
-render(new FiltersView(), siteFilterElement);
+render(new FiltersView(waypointsModel.waypoints), siteFilterElement);
 
 tripListPresenter.init();
