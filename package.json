@@ -16,7 +16,8 @@
     "start": "webpack serve --mode development --open"
   },
   "dependencies": {
-    "dayjs": "1.11.3"
+    "dayjs": "1.11.3",
+    "nanoid": "3.3.4"
   },
   "devDependencies": {
     "@babel/core": "7.18.6",

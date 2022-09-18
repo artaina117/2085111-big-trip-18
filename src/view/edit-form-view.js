@@ -177,15 +177,15 @@ export default class EditFormView extends AbstractView {
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this._callback.formSubmit();
+    this._callback.formSubmit(this.#waypoint);
   };
 
-  setSaveEditFormClickHandler = (callback) => {
+  setCloseEditFormClickHandler = (callback) => {
     this._callback.saveEditFormClick = callback;
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#saveEditFormClickHandler);
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#closeEditFormClickHandler);
   };
 
-  #saveEditFormClickHandler = (evt) => {
+  #closeEditFormClickHandler = (evt) => {
     evt.preventDefault();
     this._callback.saveEditFormClick();
   };
