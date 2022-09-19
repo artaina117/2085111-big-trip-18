@@ -4,6 +4,8 @@ import SortView from '../view/sort-view.js';
 import NoWaypointView from '../view/no-waypoints-view.js';
 import WaypointPresenter from './waypoint-presenter.js';
 import {updateItem} from '../utils/common.js';
+import {SortType} from '../utils/const.js';
+import {sortByTime, sortByPrice} from '../utils/waypoint.js';
 
 export default class TripListPresenter {
   #tripListContainer = null;
@@ -15,6 +17,9 @@ export default class TripListPresenter {
   #noWaypointView = new NoWaypointView();
   #waypointsPresenter = new Map();
 
+  #currentSortType = SortType.DEFAULT;
+  #sourcedWaypoints = [];
+
   constructor(tripListContainer, waypointsModel) {
     this.#tripListContainer = tripListContainer;
     this.#waypointsModel = waypointsModel;
@@ -22,11 +27,14 @@ export default class TripListPresenter {
 
   init = () => {
     this.#waypoints = [...this.#waypointsModel.waypoints];
+    this.#sourcedWaypoints = [...this.#waypointsModel.waypoints];
+
     this.#renderWaypointsList();
   };
 
   #renderSort = () => {
     render(this.#sortComponent, this.#tripListContainer, RenderPosition.AFTERBEGIN);
+    this.#sortComponent.setSortTypeChangeHandler(this.#handleSortTypeChange);
   };
 
   #renderNoWaypointView = () => {
@@ -67,9 +75,35 @@ export default class TripListPresenter {
   #handleTaskChange = (updatedPoint) => {
     this.#waypoints = updateItem(this.#waypoints, updatedPoint);
     this.#waypointsPresenter.get(updatedPoint.id).init(updatedPoint);
+    this.#sourcedWaypoints = updateItem(this.#sourcedWaypoints, updatedPoint);
   };
 
   #handleModeChange = () => {
     this.#waypointsPresenter.forEach((presenter) => presenter.resetView());
+  };
+
+  #sortPoints = (sortType) => {
+    switch (sortType) {
+      case SortType.TIME:
+        this.#waypoints.sort(sortByTime);
+        break;
+      case SortType.PRICE:
+        this.#waypoints.sort(sortByPrice);
+        break;
+      default: this.#waypoints = [...this.#sourcedWaypoints];
+    }
+
+    this.#currentSortType = sortType;
+  };
+
+  #handleSortTypeChange = (sortType) => {
+    if (this.#currentSortType === sortType) {
+      return;
+    }
+
+    this.#sortPoints(sortType);
+
+    this.#clearWaypointsList();
+    this.#renderWaypointsList();
   };
 }

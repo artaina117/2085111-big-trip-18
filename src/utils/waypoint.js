@@ -31,4 +31,12 @@ const compareTime = (dateFrom, dateTo) => {
   return duration;
 };
 
-export {humanizeDate, humanizeTime, compareTime, humanizeFullDate};
+const sortByTime = (a, b) => {
+  const aDiff = dayjs(a.dateTo).diff(dayjs(a.dateFrom), 'minutes');
+  const bDiff = dayjs(b.dateTo).diff(dayjs(b.dateFrom), 'minutes');
+  return bDiff - aDiff;
+};
+
+const sortByPrice = (a, b) => b.basePrice - a.basePrice;
+
+export {humanizeDate, humanizeTime, compareTime, humanizeFullDate, sortByTime, sortByPrice};
