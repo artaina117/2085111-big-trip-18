@@ -1,10 +1,8 @@
 import {getRandomInteger} from '../utils/common.js';
 import dayjs from 'dayjs';
+import {nanoid} from 'nanoid';
 import {destinations} from './destinations.js';
 import {arrayOfOffers} from './offers.js';
-
-let idWaipoint = 1;
-const generateIdWaipoint = () => idWaipoint++;
 
 const generateType = () => {
   const types = [
@@ -44,7 +42,7 @@ export const generateWaypoint = () => {
     basePrice : getRandomInteger(1, 1999),
     ...generateDate(),
     destination : getRandomInteger(1, destinations.length),
-    id : generateIdWaipoint(),
+    id : nanoid(),
     isFavorite : getRandomInteger(0, 1),
     offers : offersArray,
     type,
