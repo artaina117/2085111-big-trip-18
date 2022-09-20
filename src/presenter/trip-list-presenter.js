@@ -67,7 +67,7 @@ export default class TripListPresenter {
     }
   };
 
-  #clearWaypointsList = () => {
+  #clearWaypoints = () => {
     this.#waypointsPresenter.forEach((presenter) => presenter.destroy());
     this.#waypointsPresenter.clear();
   };
@@ -103,7 +103,7 @@ export default class TripListPresenter {
 
     this.#sortPoints(sortType);
 
-    this.#clearWaypointsList();
-    this.#renderWaypointsList();
+    this.#clearWaypoints();
+    this.#renderWaypoints();
   };
 }
