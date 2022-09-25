@@ -90,6 +90,7 @@ export default class WaypointPresenter {
   };
 
   #handleCloseEditClick = () => {
+    this.#waypointEditComponent.reset(this.#waypoint);
     this.#replaceFormToPoint();
   };
 

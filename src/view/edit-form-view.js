@@ -230,8 +230,6 @@ export default class EditFormView extends AbstractStatefulView {
   #closeEditFormClickHandler = (evt) => {
     evt.preventDefault();
     this._callback.saveEditFormClick();
-    //вот по логике здесь должен быть reset, но он вызывает ошибку. Я ему явно что-то не то передаю...
-    // this.reset(this._state);
   };
 
   #typeChangeHandler = (evt) => {
