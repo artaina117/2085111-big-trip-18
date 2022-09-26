@@ -31,7 +31,7 @@ const generateDescription = () => {
   return description;
 };
 
-const generatePictureSrc = () => `http://picsum.photos/248/152?r=${getRandomInteger(0, 100)}`;
+const generatePictureSrc = () => `img/photos/${getRandomInteger(1, 5)}.jpg`;
 
 const generateDestination = () => {
   IncDescriptionId();

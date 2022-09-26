@@ -1,4 +1,4 @@
-import AbstractView from '../framework/view/abstract-view.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import {humanizeFullDate} from '../utils/waypoint.js';
 import {destinations} from '../mock/destinations.js';
 import {arrayOfOffers} from '../mock/offers.js';
@@ -48,6 +48,33 @@ const createEditFormTemplate = (waypoint) => {
     ? createEditFormOffersTemplate(offersByType, neededOffers)
     : '';
 
+  const createPhotosForDestination = () => {
+    let photos = '';
+    for (let i = 0; i < destinationById[0].pictures.length; i++) {
+      const src = destinationById[0].pictures[i].src;
+      const description = destinationById[0].pictures[i].description;
+      photos += `<img class="event__photo" src="${src}" alt="${description}"></img>`;
+      return photos;
+    }
+  };
+
+  const renderPhotosOfDestination = () => {
+    if (destinationById[0].pictures.length > 0) {
+      return (`<div class="event__photos-container">
+      <div class="event__photos-tape">
+        ${createPhotosForDestination()}
+      </div>`);
+    }
+  };
+
+  const createDatalistOfDestinations = () => {
+    let listElements = '';
+    for (let i = 0; i < destinations.length; i++) {
+      listElements += `<option value="${destinations[i].name}">`;
+    }
+    return listElements;
+  };
+
   return (
     `<li class="trip-events__item">
       <form class="event event--edit" action="#" method="post">
@@ -64,47 +91,47 @@ const createEditFormTemplate = (waypoint) => {
                 <legend class="visually-hidden">Event type</legend>
 
                 <div class="event__type-item">
-                  <input id="event-type-taxi-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="taxi">
+                  <input id="event-type-taxi-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="taxi" ${type === 'taxi' ? 'checked' : ''}>
                   <label class="event__type-label  event__type-label--taxi" for="event-type-taxi-1">Taxi</label>
                 </div>
 
                 <div class="event__type-item">
-                  <input id="event-type-bus-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="bus">
+                  <input id="event-type-bus-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="bus" ${type === 'bus' ? 'checked' : ''}>
                   <label class="event__type-label  event__type-label--bus" for="event-type-bus-1">Bus</label>
                 </div>
 
                 <div class="event__type-item">
-                  <input id="event-type-train-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="train">
+                  <input id="event-type-train-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="train" ${type === 'train' ? 'checked' : ''}>
                   <label class="event__type-label  event__type-label--train" for="event-type-train-1">Train</label>
                 </div>
 
                 <div class="event__type-item">
-                  <input id="event-type-ship-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="ship">
+                  <input id="event-type-ship-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="ship" ${type === 'ship' ? 'checked' : ''}>
                   <label class="event__type-label  event__type-label--ship" for="event-type-ship-1">Ship</label>
                 </div>
 
                 <div class="event__type-item">
-                  <input id="event-type-drive-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="drive">
+                  <input id="event-type-drive-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="drive" ${type === 'drive' ? 'checked' : ''}>
                   <label class="event__type-label  event__type-label--drive" for="event-type-drive-1">Drive</label>
                 </div>
 
                 <div class="event__type-item">
-                  <input id="event-type-flight-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="flight" checked>
+                  <input id="event-type-flight-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="flight" ${type === 'flight' ? 'checked' : ''}>
                   <label class="event__type-label  event__type-label--flight" for="event-type-flight-1">Flight</label>
                 </div>
 
                 <div class="event__type-item">
-                  <input id="event-type-check-in-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="check-in">
+                  <input id="event-type-check-in-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="check-in" ${type === 'check-in' ? 'checked' : ''}>
                   <label class="event__type-label  event__type-label--check-in" for="event-type-check-in-1">Check-in</label>
                 </div>
 
                 <div class="event__type-item">
-                  <input id="event-type-sightseeing-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="sightseeing">
+                  <input id="event-type-sightseeing-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="sightseeing" ${type === 'sightseeing' ? 'checked' : ''}>
                   <label class="event__type-label  event__type-label--sightseeing" for="event-type-sightseeing-1">Sightseeing</label>
                 </div>
 
                 <div class="event__type-item">
-                  <input id="event-type-restaurant-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="restaurant">
+                  <input id="event-type-restaurant-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="restaurant" ${type === 'restaurant' ? 'checked' : ''}>
                   <label class="event__type-label  event__type-label--restaurant" for="event-type-restaurant-1">Restaurant</label>
                 </div>
               </fieldset>
@@ -117,9 +144,7 @@ const createEditFormTemplate = (waypoint) => {
             </label>
             <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destinationById[0].name}" list="destination-list-1">
             <datalist id="destination-list-1">
-              <option value="Amsterdam"></option>
-              <option value="Geneva"></option>
-              <option value="Chamonix"></option>
+              ${createDatalistOfDestinations()}
             </datalist>
           </div>
 
@@ -151,6 +176,7 @@ const createEditFormTemplate = (waypoint) => {
           <section class="event__section  event__section--destination">
             <h3 class="event__section-title  event__section-title--destination">Destination</h3>
             <p class="event__destination-description">${destinationById[0].description}</p>
+            ${renderPhotosOfDestination()}
           </section>
         </section>
       </form>
@@ -158,17 +184,33 @@ const createEditFormTemplate = (waypoint) => {
   );
 };
 
-export default class EditFormView extends AbstractView {
-  #waypoint = null;
+export default class EditFormView extends AbstractStatefulView {
 
   constructor(waypoint) {
     super();
-    this.#waypoint = waypoint;
+    this._state = EditFormView.parsePointToState(waypoint);
+
+    this.#setInnerHandlers();
   }
 
   get template() {
-    return createEditFormTemplate(this.#waypoint);
+    return createEditFormTemplate(this._state);
   }
+
+  static parsePointToState = (waypoint) => ({...waypoint});
+
+  static parseStateToPoint = (waypoint) => ({...waypoint});
+
+  #setInnerHandlers = () => {
+    this.element.querySelector('.event__type-group').addEventListener('click', this.#typeChangeHandler);
+    this.element.querySelector('.event__input--destination').addEventListener('input', this.#destinationChangeHandler);
+  };
+
+  _restoreHandlers = () => {
+    this.#setInnerHandlers();
+    this.setFormSubmitHandler(this._callback.formSubmit);
+    this.setCloseEditFormClickHandler(this._callback.saveEditFormClick);
+  };
 
   setFormSubmitHandler = (callback) => {
     this._callback.formSubmit = callback;
@@ -177,7 +219,7 @@ export default class EditFormView extends AbstractView {
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this._callback.formSubmit(this.#waypoint);
+    this._callback.formSubmit(EditFormView.parseStateToPoint(this._state));
   };
 
   setCloseEditFormClickHandler = (callback) => {
@@ -188,5 +230,30 @@ export default class EditFormView extends AbstractView {
   #closeEditFormClickHandler = (evt) => {
     evt.preventDefault();
     this._callback.saveEditFormClick();
+  };
+
+  #typeChangeHandler = (evt) => {
+    if (evt.target.tagName === 'INPUT') {
+      this.updateElement({
+        type: evt.target.value,
+      });
+    }
+  };
+
+  #destinationChangeHandler = (evt) => {
+    if (destinations.some((element) => (element.name === evt.target.value))) {
+      const newDestinationId = destinations.filter((item) => item.name === evt.target.value);
+      this.updateElement({
+        destination: newDestinationId[0].id,
+      });
+    } else {
+      this.element.querySelector('.event__save-btn').disabled = true;
+    }
+  };
+
+  reset = (waypoint) => {
+    this.updateElement(
+      EditFormView.parsePointToState(waypoint),
+    );
   };
 }

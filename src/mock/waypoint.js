@@ -15,13 +15,13 @@ const generateType = () => {
 };
 
 const generateDate = () => {
-  const maxDaysGap = 7;
+  const maxDaysGap = 15000;
   const daysGap = getRandomInteger(-maxDaysGap, maxDaysGap);
 
   const maxDuration = 300;
   const duration = getRandomInteger(1, maxDuration);
 
-  const dateFrom = dayjs().add(daysGap, 'day').toDate();
+  const dateFrom = dayjs().add(daysGap, 'minutes').toDate();
   const dateTo = dayjs(dateFrom).add(duration, 'minutes').toDate();
   return {
     dateFrom, dateTo
