@@ -1,7 +1,10 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
-import {humanizeFullDate} from '../utils/waypoint.js';
+import {humanizeFullDate, compareTime} from '../utils/waypoint.js';
 import {destinations} from '../mock/destinations.js';
 import {arrayOfOffers} from '../mock/offers.js';
+import flatpickr from 'flatpickr';
+
+import 'flatpickr/dist/flatpickr.min.css';
 
 const getOffers = (offersByType, offersIds) => {
   const offersArray = [];
@@ -185,6 +188,8 @@ const createEditFormTemplate = (waypoint) => {
 };
 
 export default class EditFormView extends AbstractStatefulView {
+  #datepickerFrom = null;
+  #datepickerTo = null;
 
   constructor(waypoint) {
     super();
@@ -204,6 +209,7 @@ export default class EditFormView extends AbstractStatefulView {
   #setInnerHandlers = () => {
     this.element.querySelector('.event__type-group').addEventListener('click', this.#typeChangeHandler);
     this.element.querySelector('.event__input--destination').addEventListener('input', this.#destinationChangeHandler);
+    this.#setDatepickers();
   };
 
   _restoreHandlers = () => {
@@ -251,9 +257,58 @@ export default class EditFormView extends AbstractStatefulView {
     }
   };
 
+  #dateFromChangeHandler = ([userDate]) => {
+    this.updateElement({
+      dateFrom: userDate,
+    });
+    compareTime(this._state, this.element);
+  };
+
+  #dateToChangeHandler = ([userDate]) => {
+    this.updateElement({
+      dateTo: userDate,
+    });
+    compareTime(this._state, this.element);
+  };
+
+  #setDatepickers = () => {
+    if (this._state.dateFrom) {
+      this.#datepickerFrom = flatpickr(
+        this.element.querySelector('#event-start-time-1'),
+        {
+          enableTime: true,
+          dateFormat: 'y/m/d H:i',
+          defaultDate: this._state.dateFrom,
+          onChange: this.#dateFromChangeHandler,
+        },
+      );
+    }
+    if (this._state.dateTo) {
+      this.#datepickerTo = flatpickr(
+        this.element.querySelector('#event-end-time-1'),
+        {
+          enableTime: true,
+          dateFormat: 'y/m/d H:i',
+          defaultDate: this._state.dateTo,
+          onChange: this.#dateToChangeHandler,
+          minDate: this._state.dateFrom,
+        },
+      );
+    }
+  };
+
   reset = (waypoint) => {
     this.updateElement(
       EditFormView.parsePointToState(waypoint),
     );
+  };
+
+  removeElement = () => {
+    super.removeElement();
+
+    if (this.#datepickerFrom) {
+      this.#datepickerFrom.destroy();
+      this.#datepickerFrom = null;
+    }
   };
 }
