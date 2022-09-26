@@ -1,5 +1,5 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import {humanizeDate, humanizeTime, compareTime} from '../utils/waypoint.js';
+import {humanizeDate, humanizeTime, calculateDuration} from '../utils/waypoint.js';
 import {destinations} from '../mock/destinations.js';
 import {arrayOfOffers} from '../mock/offers.js';
 
@@ -41,7 +41,7 @@ const createWaypointTemplate = (waypoint) => {
     ? humanizeDate(dateFrom)
     : '';
 
-  const timeDiff = compareTime(dateFrom, dateTo);
+  const timeDiff = calculateDuration(dateFrom, dateTo);
 
   const favoriteClassName = isFavorite ? 'event__favorite-btn--active' : '';
 

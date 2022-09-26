@@ -18,7 +18,7 @@ const generateDate = () => {
   const maxDaysGap = 15000;
   const daysGap = getRandomInteger(-maxDaysGap, maxDaysGap);
 
-  const maxDuration = 300;
+  const maxDuration = 3000;
   const duration = getRandomInteger(1, maxDuration);
 
   const dateFrom = dayjs().add(daysGap, 'minutes').toDate();

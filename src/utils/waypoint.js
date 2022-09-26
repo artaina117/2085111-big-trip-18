@@ -1,32 +1,50 @@
 import dayjs from 'dayjs';
 
 const MINUTES_PER_HOUR = 60;
+const MINUTES_PER_DAY = 1440;
 const TIME_COUNT = 10;
 
 const humanizeTime = (date) => dayjs(date).format('HH:mm');
 const humanizeDate = (date) => dayjs(date).format('MMM D');
 const humanizeFullDate = (date) => dayjs(date).format('DD/MM/YY HH:mm');
 
-const compareTime = (dateFrom, dateTo) => {
+const calculateDuration = (dateFrom, dateTo) => {
   const date1 = dayjs(dateFrom);
   const date2 = dayjs(dateTo);
-  const diff = date2.diff(date1, 'minutes');
+  const diff = date2.diff(date1, 'minute');
 
   let duration = '';
+  let amountOfHours = 0;
 
-  if (diff >= MINUTES_PER_HOUR) {
-    const hours = Math.trunc(diff / MINUTES_PER_HOUR);
-    if (hours < TIME_COUNT) {
+  if (diff >= MINUTES_PER_DAY) {
+    const amountOfDays = Math.trunc(diff / MINUTES_PER_DAY);
+
+    if (amountOfDays < TIME_COUNT) {
       duration += '0';
     }
-    duration += `${hours}H `;
+    duration += `${amountOfDays}D `;
+
+    amountOfHours = diff % MINUTES_PER_DAY;
+
+    amountOfHours = amountOfHours >= MINUTES_PER_HOUR ? amountOfHours = Math.trunc(amountOfHours / MINUTES_PER_HOUR) : 0;
+
+    if (amountOfHours < TIME_COUNT) {
+      duration += '0';
+    }
+    duration += `${amountOfHours}H `;
+  } else if (diff >= MINUTES_PER_HOUR) {
+    amountOfHours = Math.trunc(diff / MINUTES_PER_HOUR);
+    if (amountOfHours < TIME_COUNT) {
+      duration += '0';
+    }
+    duration += `${amountOfHours}H `;
   }
 
-  const minutes = diff % MINUTES_PER_HOUR;
-  if (minutes < TIME_COUNT) {
+  const amountOfMinutes = diff % MINUTES_PER_HOUR;
+  if (amountOfMinutes < TIME_COUNT) {
     duration += '0';
   }
-  duration += `${minutes}M`;
+  duration += `${amountOfMinutes}M`;
 
   return duration;
 };
@@ -39,4 +57,13 @@ const sortByTime = (a, b) => {
 
 const sortByPrice = (a, b) => b.basePrice - a.basePrice;
 
-export {humanizeDate, humanizeTime, compareTime, humanizeFullDate, sortByTime, sortByPrice};
+const compareTime = (object, element) => {
+  const date1 = dayjs(object.dateFrom);
+  const date2 = dayjs(object.dateTo);
+  const diff = date2.diff(date1, 'minutes');
+  if (diff < 0) {
+    element.querySelector('.event__save-btn').disabled = true;
+  }
+};
+
+export {humanizeDate, humanizeTime, calculateDuration, humanizeFullDate, sortByTime, sortByPrice, compareTime};
