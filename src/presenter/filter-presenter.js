@@ -18,12 +18,7 @@ export default class FilterPresenter {
     this.#filterModel.addObserver(this.#handleModelEvent);
   }
 
-  // get filters() {
-  //   return this.#waypointsModel.waypoints;
-  // }
-
   init = () => {
-    // const filters = this.filters;
     const prevFilterComponent = this.#filterComponent;
 
     this.#filterComponent = new FilterView(this.#waypointsModel.waypoints, this.#filterModel.filter);

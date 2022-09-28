@@ -1,9 +1,10 @@
 import {render, remove, RenderPosition} from '../framework/render.js';
 import TripListView from '../view/trip-list-view.js';
 import SortView from '../view/sort-view.js';
+import NewWaypointPresenter from './new-waypoint-presenter.js';
 import NoWaypointView from '../view/no-waypoints-view.js';
 import WaypointPresenter from './waypoint-presenter.js';
-import {SortType, UpdateType, UserAction} from '../utils/const.js';
+import {SortType, UpdateType, UserAction, FilterType} from '../utils/const.js';
 import {sortByTime, sortByPrice} from '../utils/waypoint.js';
 import {filter} from '../utils/filter.js';
 
@@ -12,11 +13,13 @@ export default class TripListPresenter {
   #waypointsModel = null;
   #sortComponent = null;
   #filterModel = null;
+  #noWaypointView = null;
+  #newWaypointPresenter = null;
 
   #tripListComponent = new TripListView();
-  #noWaypointView = new NoWaypointView();
   #waypointsPresenter = new Map();
 
+  #filterType = FilterType.ALL;
   #currentSortType = SortType.DEFAULT;
 
   constructor(tripListContainer, waypointsModel, filterModel) {
@@ -24,14 +27,16 @@ export default class TripListPresenter {
     this.#waypointsModel = waypointsModel;
     this.#filterModel = filterModel;
 
+    this.#newWaypointPresenter = new NewWaypointPresenter(this.#tripListComponent.element, this.#handleViewAction);
+
     this.#waypointsModel.addObserver(this.#handleModelEvent);
     this.#filterModel.addObserver(this.#handleModelEvent);
   }
 
   get waypoints() {
-    const filterType = this.#filterModel.filter;
+    this.#filterType = this.#filterModel.filter;
     const waypoints = this.#waypointsModel.waypoints;
-    const filteredWaypoints = filter[filterType](waypoints);
+    const filteredWaypoints = filter[this.#filterType](waypoints);
 
     switch (this.#currentSortType) {
       case SortType.PRICE:
@@ -40,11 +45,17 @@ export default class TripListPresenter {
         return filteredWaypoints.sort(sortByTime);
     }
 
-    return this.#waypointsModel.waypoints;
+    return filteredWaypoints;
   }
 
   init = () => {
     this.#renderBoard();
+  };
+
+  createWaypoint = (callback) => {
+    this.#currentSortType = SortType.DEFAULT;
+    this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.ALL);
+    this.#newWaypointPresenter.init(callback);
   };
 
   #renderSort = () => {
@@ -55,6 +66,7 @@ export default class TripListPresenter {
   };
 
   #renderNoWaypointView = () => {
+    this.#noWaypointView = new NoWaypointView(this.#filterType);
     render(this.#noWaypointView, this.#tripListContainer,RenderPosition.AFTERBEGIN);
   };
 
@@ -112,6 +124,7 @@ export default class TripListPresenter {
   };
 
   #handleModeChange = () => {
+    this.#newWaypointPresenter.destroy();
     this.#waypointsPresenter.forEach((presenter) => presenter.resetView());
   };
 
@@ -128,11 +141,16 @@ export default class TripListPresenter {
 
   #clearBoard = ({resetSortType = false} = {}) => {
 
+    this.#newWaypointPresenter.destroy();
     this.#waypointsPresenter.forEach((presenter) => presenter.destroy());
     this.#waypointsPresenter.clear();
 
     remove(this.#sortComponent);
     remove(this.#noWaypointView);
+
+    if (this.#noWaypointView) {
+      remove(this.#noWaypointView);
+    }
 
     if (resetSortType) {
       this.#currentSortType = SortType.DEFAULT;

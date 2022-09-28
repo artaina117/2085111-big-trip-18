@@ -9,17 +9,17 @@ const isPast = (waypoints) => waypoints.some((element) => dayjs(dayjs()).diff(el
 const createFiltersTemplate = (waypoints, currentFilter) => (`
   <form class="trip-filters" action="#" method="get">
     <div class="trip-filters__filter">
-      <input id="filter-everything" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="everything" ${currentFilter === FilterType.ALL ? 'checked' : ''}>
+      <input id="filter-everything" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="${FilterType.ALL}" ${currentFilter === FilterType.ALL ? 'checked' : ''}>
       <label class="trip-filters__filter-label" for="filter-everything">Everything</label>
     </div>
 
     <div class="trip-filters__filter">
-      <input id="filter-future" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="future" ${isFuture(waypoints) ? '' : 'disabled'} ${currentFilter === FilterType.FUTURE ? 'checked' : ''}>
+      <input id="filter-future" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="${FilterType.FUTURE}" ${isFuture(waypoints) ? '' : 'disabled'} ${currentFilter === FilterType.FUTURE ? 'checked' : ''}>
       <label class="trip-filters__filter-label" for="filter-future">Future</label>
     </div>
 
     <div class="trip-filters__filter">
-      <input id="filter-past" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="past" ${isPast(waypoints) ? '' : 'disabled'} ${currentFilter === FilterType.PAST ? 'checked' : ''}>
+      <input id="filter-past" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="${FilterType.PAST}" ${isPast(waypoints) ? '' : 'disabled'} ${currentFilter === FilterType.PAST ? 'checked' : ''}>
       <label class="trip-filters__filter-label" for="filter-past">Past</label>
     </div>
 
@@ -47,6 +47,9 @@ export default class FiltersView extends AbstractView {
   };
 
   #filterTypeChangeHandler = (evt) => {
+    if (evt.target.tagName !== 'INPUT') {
+      return;
+    }
     evt.preventDefault();
     this._callback.filterTypeChange(evt.target.value);
   };
