@@ -216,6 +216,7 @@ export default class EditFormView extends AbstractStatefulView {
     this.#setInnerHandlers();
     this.setFormSubmitHandler(this._callback.formSubmit);
     this.setCloseEditFormClickHandler(this._callback.saveEditFormClick);
+    this.setDeleteClickHandler(this._callback.deleteClick);
   };
 
   setFormSubmitHandler = (callback) => {
@@ -236,6 +237,16 @@ export default class EditFormView extends AbstractStatefulView {
   #closeEditFormClickHandler = (evt) => {
     evt.preventDefault();
     this._callback.saveEditFormClick();
+  };
+
+  setDeleteClickHandler = (callback) => {
+    this._callback.deleteClick = callback;
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formDeleteClickHandler);
+  };
+
+  #formDeleteClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.deleteClick(EditFormView.parseStateToPoint(this._state));
   };
 
   #typeChangeHandler = (evt) => {
