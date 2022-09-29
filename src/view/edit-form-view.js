@@ -3,8 +3,20 @@ import {humanizeFullDate, compareTime} from '../utils/waypoint.js';
 import {destinations} from '../mock/destinations.js';
 import {arrayOfOffers} from '../mock/offers.js';
 import flatpickr from 'flatpickr';
+import dayjs from 'dayjs';
+import he from 'he';
 
 import 'flatpickr/dist/flatpickr.min.css';
+
+const BLANK_POINT = {
+  basePrice : 0,
+  dateFrom: dayjs().toDate(),
+  dateTo: dayjs().toDate(),
+  destination : 1,
+  isFavorite : 0,
+  offers : arrayOfOffers[0],
+  type: 'taxi',
+};
 
 const getOffers = (offersByType, offersIds) => {
   const offersArray = [];
@@ -145,7 +157,7 @@ const createEditFormTemplate = (waypoint) => {
             <label class="event__label  event__type-output" for="event-destination-1">
               ${type}
             </label>
-            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destinationById[0].name}" list="destination-list-1">
+            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${he.encode(destinationById[0].name)}" list="destination-list-1">
             <datalist id="destination-list-1">
               ${createDatalistOfDestinations()}
             </datalist>
@@ -191,7 +203,7 @@ export default class EditFormView extends AbstractStatefulView {
   #datepickerFrom = null;
   #datepickerTo = null;
 
-  constructor(waypoint) {
+  constructor(waypoint = BLANK_POINT) {
     super();
     this._state = EditFormView.parsePointToState(waypoint);
 
@@ -216,6 +228,7 @@ export default class EditFormView extends AbstractStatefulView {
     this.#setInnerHandlers();
     this.setFormSubmitHandler(this._callback.formSubmit);
     this.setCloseEditFormClickHandler(this._callback.saveEditFormClick);
+    this.setDeleteClickHandler(this._callback.deleteClick);
   };
 
   setFormSubmitHandler = (callback) => {
@@ -236,6 +249,16 @@ export default class EditFormView extends AbstractStatefulView {
   #closeEditFormClickHandler = (evt) => {
     evt.preventDefault();
     this._callback.saveEditFormClick();
+  };
+
+  setDeleteClickHandler = (callback) => {
+    this._callback.deleteClick = callback;
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formDeleteClickHandler);
+  };
+
+  #formDeleteClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.deleteClick(EditFormView.parseStateToPoint(this._state));
   };
 
   #typeChangeHandler = (evt) => {

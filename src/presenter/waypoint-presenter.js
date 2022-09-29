@@ -1,6 +1,8 @@
 import {render, replace, remove} from '../framework/render.js';
 import WaypointView from '../view/waypoint-view.js';
 import EditFormView from '../view/edit-form-view.js';
+import {UserAction, UpdateType} from '../utils/const.js';
+import {isDatesEqual} from '../utils/waypoint.js';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -36,6 +38,7 @@ export default class WaypointPresenter {
     this.#waypointComponent.setFavoriteClickHandler(this.#handleFavoriteClick);
     this.#waypointEditComponent.setFormSubmitHandler(this.#handleFormSubmit);
     this.#waypointEditComponent.setCloseEditFormClickHandler(this.#handleCloseEditClick);
+    this.#waypointEditComponent.setDeleteClickHandler(this.#handleDeleteClick);
 
     if (prevWaypointComponent === null || prevWaypointEditComponent === null) {
       render(this.#waypointComponent, this.#waypointListContainer);
@@ -84,9 +87,25 @@ export default class WaypointPresenter {
     this.#replacePointToForm();
   };
 
-  #handleFormSubmit = (waypoint) => {
+  #handleDeleteClick = (waypoint) => {
+    this.#changeData(
+      UserAction.DELETE_POINT,
+      UpdateType.MINOR,
+      waypoint,
+    );
+  };
+
+  #handleFormSubmit = (update) => {
+    const isMinorUpdate =
+    !isDatesEqual(this.#waypoint, update) ||
+    this.#waypoint.basePrice !== update.basePrice;
+
+    this.#changeData(
+      UserAction.UPDATE_POINT,
+      isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH,
+      update,
+    );
     this.#replaceFormToPoint();
-    this.#changeData(waypoint);
   };
 
   #handleCloseEditClick = () => {
@@ -95,7 +114,11 @@ export default class WaypointPresenter {
   };
 
   #handleFavoriteClick = () => {
-    this.#changeData({...this.#waypoint, isFavorite: !this.#waypoint.isFavorite});
+    this.#changeData(
+      UserAction.UPDATE_POINT,
+      UpdateType.MINOR,
+      {...this.#waypoint, isFavorite: !this.#waypoint.isFavorite},
+    );
   };
 
   resetView = () => {

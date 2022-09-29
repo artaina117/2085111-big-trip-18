@@ -66,4 +66,6 @@ const compareTime = (object, element) => {
   }
 };
 
-export {humanizeDate, humanizeTime, calculateDuration, humanizeFullDate, sortByTime, sortByPrice, compareTime};
+const isDatesEqual = (dateA, dateB) => (dayjs(dateA.dateFrom).isSame(dateB.dateFrom, 'minutes')) && (dayjs(dateA.dateTo).isSame(dateB.dateTo, 'minutes'));
+
+export {humanizeDate, humanizeTime, calculateDuration, humanizeFullDate, sortByTime, sortByPrice, compareTime, isDatesEqual};
