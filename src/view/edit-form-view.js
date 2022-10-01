@@ -2,7 +2,7 @@ import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import {humanizeFullDate, compareTime} from '../utils/waypoint.js';
 import flatpickr from 'flatpickr';
 import dayjs from 'dayjs';
-import he from 'he';
+// import he from 'he';
 
 import 'flatpickr/dist/flatpickr.min.css';
 
@@ -48,7 +48,6 @@ const createEditFormTemplate = (waypoint, destinations, arrayOfOffers) => {
   const {basePrice, dateFrom, dateTo, type, destination, offers} = waypoint;
 
   const destinationById = destinations && destinations.length > 0 && destinations.filter((item) => item.id === destination)[0];
-  console.log(destinationById.pictures);
 
   const humanizedTimeFrom = dateFrom !== null
     ? humanizeFullDate(dateFrom)
