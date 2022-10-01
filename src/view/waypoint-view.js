@@ -1,21 +1,21 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import {humanizeDate, humanizeTime, calculateDuration} from '../utils/waypoint.js';
-import {destinations} from '../mock/destinations.js';
-import {arrayOfOffers} from '../mock/offers.js';
-import he from 'he';
+// import he from 'he';
 
 const getOffers = (offersByType, offersIds) => {
   const offersArray = [];
   for (let i = 0; i < offersIds.length; i++) {
-    const offer = offersByType.filter((element) => element.id === offersIds[i]);
-    offersArray.push(...offer);
+    if (offersByType?.length > 0) {
+      const offer = offersByType.filter((element) => element.id === offersIds[i]);
+      offersArray.push(...offer);
+    }
   }
   return offersArray;
 };
 
 const createWaipointOffersTemplate = (offers) =>`
   <ul class="event__selected-offers">
-    ${offers.map((offer) => `
+    ${offers && offers.length > 0 && offers.map((offer) => `
       <li class="event__offer">
         <span class="event__offer-title">${offer.title}</span>
           &plus;&euro;&nbsp;
@@ -25,10 +25,10 @@ const createWaipointOffersTemplate = (offers) =>`
   </ul>
   `.split(',').join('\n');
 
-const createWaypointTemplate = (waypoint) => {
+const createWaypointTemplate = (waypoint, destinations, arrayOfOffers) => {
   const {basePrice, dateFrom, dateTo, isFavorite, type, destination, offers} = waypoint;
 
-  const destinationById = destinations.filter((item) => item.id === destination);
+  const destinationById = destinations && destinations.length > 0 && destinations.filter((item) => item.id === destination)[0];
 
   const humanizedTimeFrom = dateFrom !== null
     ? humanizeTime(dateFrom)
@@ -46,9 +46,9 @@ const createWaypointTemplate = (waypoint) => {
 
   const favoriteClassName = isFavorite ? 'event__favorite-btn--active' : '';
 
-  const offersByType = arrayOfOffers.find((element) => element.type === type).offers;
+  const offersByType = arrayOfOffers?.find((element) => element.type === type)?.offers;
   const neededOffers = getOffers(offersByType, offers);
-  const offersTemplate = neededOffers.length !== 0
+  const offersTemplate = neededOffers?.length !== 0
     ? createWaipointOffersTemplate(neededOffers)
     : '';
 
@@ -59,7 +59,7 @@ const createWaypointTemplate = (waypoint) => {
         <div class="event__type">
           <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
         </div>
-        <h3 class="event__title">${type} ${he.encode(destinationById[0].name)}</h3>
+        <h3 class="event__title">${type} ${destinationById?.name}</h3>
         <div class="event__schedule">
           <p class="event__time">
             <time class="event__start-time" datetime="${dateFrom}">${humanizedTimeFrom}</time>
@@ -89,14 +89,18 @@ const createWaypointTemplate = (waypoint) => {
 
 export default class WaypointView extends AbstractView {
   #waypoint = null;
+  #destinations = null;
+  #arrayOfOffers = null;
 
-  constructor(waypoint) {
+  constructor(waypoint, destinations, arrayOfOffers) {
     super();
     this.#waypoint = waypoint;
+    this.#destinations = destinations;
+    this.#arrayOfOffers = arrayOfOffers;
   }
 
   get template() {
-    return createWaypointTemplate(this.#waypoint);
+    return createWaypointTemplate(this.#waypoint, this.#destinations, this.#arrayOfOffers);
   }
 
   setEditClickHandler = (callback) => {

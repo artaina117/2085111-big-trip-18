@@ -1,10 +1,8 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import {humanizeFullDate, compareTime} from '../utils/waypoint.js';
-import {destinations} from '../mock/destinations.js';
-import {arrayOfOffers} from '../mock/offers.js';
 import flatpickr from 'flatpickr';
 import dayjs from 'dayjs';
-import he from 'he';
+// import he from 'he';
 
 import 'flatpickr/dist/flatpickr.min.css';
 
@@ -14,15 +12,17 @@ const BLANK_POINT = {
   dateTo: dayjs().toDate(),
   destination : 1,
   isFavorite : 0,
-  offers : arrayOfOffers[0],
+  offers : '',
   type: 'taxi',
 };
 
 const getOffers = (offersByType, offersIds) => {
   const offersArray = [];
   for (let i = 0; i < offersIds.length; i++) {
-    const offer = offersByType.filter((element) => element.id === offersIds[i]);
-    offersArray.push(...offer);
+    if (offersByType?.length > 0) {
+      const offer = offersByType.filter((element) => element.id === offersIds[i]);
+      offersArray.push(...offer);
+    }
   }
   return offersArray;
 };
@@ -31,7 +31,7 @@ const createEditFormOffersTemplate = (offers, checkedOffers) => `
   <section class="event__section  event__section--offers">
     <h3 class="event__section-title  event__section-title--offers">Offers</h3>
     <div class="event__available-offers">
-    ${offers.map((offer) => `
+    ${offers && offers.length > 0 && offers.map((offer) => `
       <div class="event__offer-selector">
         <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-1" type="checkbox" name="event-offer-luggage"
           ${checkedOffers.filter((element) => element.id === offer.id).length > 0 ? 'checked' : ''}>
@@ -44,10 +44,10 @@ const createEditFormOffersTemplate = (offers, checkedOffers) => `
     </div>
   </section>`.split(',').join('\n');
 
-const createEditFormTemplate = (waypoint) => {
+const createEditFormTemplate = (waypoint, destinations, arrayOfOffers) => {
   const {basePrice, dateFrom, dateTo, type, destination, offers} = waypoint;
 
-  const destinationById = destinations.filter((item) => item.id === destination);
+  const destinationById = destinations && destinations.length > 0 && destinations.filter((item) => item.id === destination)[0];
 
   const humanizedTimeFrom = dateFrom !== null
     ? humanizeFullDate(dateFrom)
@@ -57,24 +57,24 @@ const createEditFormTemplate = (waypoint) => {
     ? humanizeFullDate(dateTo)
     : '';
 
-  const offersByType = arrayOfOffers.find((element) => element.type === type).offers;
+  const offersByType = arrayOfOffers.find((element) => element.type === type)?.offers;
   const neededOffers = getOffers(offersByType, offers);
-  const offersTemplate = offersByType.length !== 0
+  const offersTemplate = offersByType?.length !== 0
     ? createEditFormOffersTemplate(offersByType, neededOffers)
     : '';
 
   const createPhotosForDestination = () => {
     let photos = '';
-    for (let i = 0; i < destinationById[0].pictures.length; i++) {
-      const src = destinationById[0].pictures[i].src;
-      const description = destinationById[0].pictures[i].description;
+    for (let i = 0; i < destinationById.pictures.length; i++) {
+      const src = destinationById.pictures[i].src;
+      const description = destinationById.pictures[i].description;
       photos += `<img class="event__photo" src="${src}" alt="${description}"></img>`;
-      return photos;
     }
+    return photos;
   };
 
   const renderPhotosOfDestination = () => {
-    if (destinationById[0].pictures.length > 0) {
+    if (destinationById?.pictures) {
       return (`<div class="event__photos-container">
       <div class="event__photos-tape">
         ${createPhotosForDestination()}
@@ -157,7 +157,7 @@ const createEditFormTemplate = (waypoint) => {
             <label class="event__label  event__type-output" for="event-destination-1">
               ${type}
             </label>
-            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${he.encode(destinationById[0].name)}" list="destination-list-1">
+            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destinationById?.name}" list="destination-list-1">
             <datalist id="destination-list-1">
               ${createDatalistOfDestinations()}
             </datalist>
@@ -190,7 +190,7 @@ const createEditFormTemplate = (waypoint) => {
 
           <section class="event__section  event__section--destination">
             <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-            <p class="event__destination-description">${destinationById[0].description}</p>
+            <p class="event__destination-description">${destinationById?.description}</p>
             ${renderPhotosOfDestination()}
           </section>
         </section>
@@ -202,16 +202,19 @@ const createEditFormTemplate = (waypoint) => {
 export default class EditFormView extends AbstractStatefulView {
   #datepickerFrom = null;
   #datepickerTo = null;
+  #destinations = null;
+  #arrayOfOffers = null;
 
-  constructor(waypoint = BLANK_POINT) {
+  constructor(waypoint = BLANK_POINT, destinations, arrayOfOffers) {
     super();
     this._state = EditFormView.parsePointToState(waypoint);
-
+    this.#destinations = destinations;
+    this.#arrayOfOffers = arrayOfOffers;
     this.#setInnerHandlers();
   }
 
   get template() {
-    return createEditFormTemplate(this._state);
+    return createEditFormTemplate(this._state, this.#destinations, this.#arrayOfOffers);
   }
 
   static parsePointToState = (waypoint) => ({...waypoint});
@@ -270,8 +273,8 @@ export default class EditFormView extends AbstractStatefulView {
   };
 
   #destinationChangeHandler = (evt) => {
-    if (destinations.some((element) => (element.name === evt.target.value))) {
-      const newDestinationId = destinations.filter((item) => item.name === evt.target.value);
+    if (this.#destinations.some((element) => (element.name === evt.target.value))) {
+      const newDestinationId = this.#destinations.filter((item) => item.name === evt.target.value);
       this.updateElement({
         destination: newDestinationId[0].id,
       });

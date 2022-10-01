@@ -16,13 +16,17 @@ export default class WaypointPresenter {
   #waypointListContainer = null;
   #changeData = null;
   #changeMode = null;
+  #destinations = null;
+  #offers = null;
 
   #mode = Mode.DEFAULT;
 
-  constructor(waypointListContainer, changeData, changeMode) {
+  constructor(waypointListContainer, changeData, changeMode, destinations, offers) {
     this.#waypointListContainer = waypointListContainer;
     this.#changeData = changeData;
     this.#changeMode = changeMode;
+    this.#destinations = destinations;
+    this.#offers = offers;
   }
 
   init = (waypoint) => {
@@ -31,8 +35,8 @@ export default class WaypointPresenter {
     const prevWaypointComponent = this.#waypointComponent;
     const prevWaypointEditComponent = this.#waypointEditComponent;
 
-    this.#waypointComponent = new WaypointView(this.#waypoint);
-    this.#waypointEditComponent = new EditFormView(this.#waypoint);
+    this.#waypointComponent = new WaypointView(this.#waypoint, this.#destinations, this.#offers);
+    this.#waypointEditComponent = new EditFormView(this.#waypoint, this.#destinations, this.#offers);
 
     this.#waypointComponent.setEditClickHandler(this.#handleEditClick);
     this.#waypointComponent.setFavoriteClickHandler(this.#handleFavoriteClick);
