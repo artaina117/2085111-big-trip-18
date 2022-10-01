@@ -48,6 +48,7 @@ const createEditFormTemplate = (waypoint, destinations, arrayOfOffers) => {
   const {basePrice, dateFrom, dateTo, type, destination, offers} = waypoint;
 
   const destinationById = destinations && destinations.length > 0 && destinations.filter((item) => item.id === destination)[0];
+  console.log(destinationById.pictures);
 
   const humanizedTimeFrom = dateFrom !== null
     ? humanizeFullDate(dateFrom)
@@ -69,8 +70,8 @@ const createEditFormTemplate = (waypoint, destinations, arrayOfOffers) => {
       const src = destinationById.pictures[i].src;
       const description = destinationById.pictures[i].description;
       photos += `<img class="event__photo" src="${src}" alt="${description}"></img>`;
-      return photos;
     }
+    return photos;
   };
 
   const renderPhotosOfDestination = () => {
