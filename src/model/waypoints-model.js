@@ -14,7 +14,6 @@ export default class WaypointsModel extends Observable {
     try {
       const waypoints = await this.#pointsApiService.waypoints;
       this.#waypoints = waypoints.map(this.#adaptToClient);
-      // console.log('Data: ', this.#waypoints);
     } catch(err) {
       this.#waypoints = [];
     }

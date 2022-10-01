@@ -19,8 +19,10 @@ const BLANK_POINT = {
 const getOffers = (offersByType, offersIds) => {
   const offersArray = [];
   for (let i = 0; i < offersIds.length; i++) {
-    const offer = offersByType.filter((element) => element.id === offersIds[i]);
-    offersArray.push(...offer);
+    if (offersByType?.length > 0) {
+      const offer = offersByType.filter((element) => element.id === offersIds[i]);
+      offersArray.push(...offer);
+    }
   }
   return offersArray;
 };
@@ -29,7 +31,7 @@ const createEditFormOffersTemplate = (offers, checkedOffers) => `
   <section class="event__section  event__section--offers">
     <h3 class="event__section-title  event__section-title--offers">Offers</h3>
     <div class="event__available-offers">
-    ${offers.map((offer) => `
+    ${offers && offers.length > 0 && offers.map((offer) => `
       <div class="event__offer-selector">
         <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-1" type="checkbox" name="event-offer-luggage"
           ${checkedOffers.filter((element) => element.id === offer.id).length > 0 ? 'checked' : ''}>
@@ -56,9 +58,9 @@ const createEditFormTemplate = (waypoint, destinations, arrayOfOffers) => {
     ? humanizeFullDate(dateTo)
     : '';
 
-  const offersByType = arrayOfOffers.find((element) => element.type === type).offers;
+  const offersByType = arrayOfOffers.find((element) => element.type === type)?.offers;
   const neededOffers = getOffers(offersByType, offers);
-  const offersTemplate = offersByType.length !== 0
+  const offersTemplate = offersByType?.length !== 0
     ? createEditFormOffersTemplate(offersByType, neededOffers)
     : '';
 

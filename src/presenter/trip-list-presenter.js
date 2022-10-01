@@ -7,6 +7,7 @@ import WaypointPresenter from './waypoint-presenter.js';
 import {SortType, UpdateType, UserAction, FilterType} from '../utils/const.js';
 import {sortByTime, sortByPrice} from '../utils/waypoint.js';
 import {filter} from '../utils/filter.js';
+import LoadingView from '../view/loading-view.js';
 
 export default class TripListPresenter {
   #tripListContainer = null;
@@ -19,10 +20,12 @@ export default class TripListPresenter {
   #offersModel = null;
 
   #tripListComponent = new TripListView();
+  #loadingComponent = new LoadingView();
   #waypointsPresenter = new Map();
 
   #filterType = FilterType.ALL;
   #currentSortType = SortType.DEFAULT;
+  #isLoading = true;
 
   constructor(tripListContainer, waypointsModel, filterModel, destinationsModel, offersModel) {
     this.#tripListContainer = tripListContainer;
@@ -86,6 +89,10 @@ export default class TripListPresenter {
     render(this.#noWaypointView, this.#tripListContainer,RenderPosition.AFTERBEGIN);
   };
 
+  #renderLoading = () => {
+    render(this.#loadingComponent, this.#tripListContainer, RenderPosition.AFTERBEGIN);
+  };
+
   #renderWaypoint = (waypoint) => {
     const waypointPresenter = new WaypointPresenter(this.#tripListComponent.element, this.#handleViewAction, this.#handleModeChange, this.destinations, this.offers);
     waypointPresenter.init(waypoint);
@@ -97,9 +104,14 @@ export default class TripListPresenter {
   };
 
   #renderBoard = () => {
+    if (this.#isLoading) {
+      this.#renderLoading();
+      return;
+    }
+
     const waypoints = this.waypoints;
     const waypointsCount = waypoints.length;
-
+    console.log(waypointsCount);
     if (waypointsCount === 0) {
       this.#renderNoWaypointView();
       return;
@@ -137,8 +149,11 @@ export default class TripListPresenter {
         this.#renderBoard();
         break;
       case UpdateType.INIT:
-        this.#clearBoard();
+        console.log('!!!');
+        this.#isLoading = false;
+        remove(this.#loadingComponent);
         this.#renderBoard();
+        break;
     }
   };
 
@@ -166,6 +181,7 @@ export default class TripListPresenter {
 
     remove(this.#sortComponent);
     remove(this.#noWaypointView);
+    remove(this.#loadingComponent);
 
     if (this.#noWaypointView) {
       remove(this.#noWaypointView);

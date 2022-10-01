@@ -5,15 +5,17 @@ import he from 'he';
 const getOffers = (offersByType, offersIds) => {
   const offersArray = [];
   for (let i = 0; i < offersIds.length; i++) {
-    const offer = offersByType.filter((element) => element.id === offersIds[i]);
-    offersArray.push(...offer);
+    if (offersByType?.length > 0) {
+      const offer = offersByType.filter((element) => element.id === offersIds[i]);
+      offersArray.push(...offer);
+    }
   }
   return offersArray;
 };
 
 const createWaipointOffersTemplate = (offers) =>`
   <ul class="event__selected-offers">
-    ${offers.map((offer) => `
+    ${offers && offers.length > 0 && offers.map((offer) => `
       <li class="event__offer">
         <span class="event__offer-title">${offer.title}</span>
           &plus;&euro;&nbsp;
@@ -44,9 +46,9 @@ const createWaypointTemplate = (waypoint, destinations, arrayOfOffers) => {
 
   const favoriteClassName = isFavorite ? 'event__favorite-btn--active' : '';
 
-  const offersByType = arrayOfOffers.find((element) => element.type === type).offers;
+  const offersByType = arrayOfOffers?.find((element) => element.type === type)?.offers;
   const neededOffers = getOffers(offersByType, offers);
-  const offersTemplate = neededOffers.length !== 0
+  const offersTemplate = neededOffers?.length !== 0
     ? createWaipointOffersTemplate(neededOffers)
     : '';
 
