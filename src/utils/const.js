@@ -20,6 +20,12 @@ const UpdateType = {
   PATCH: 'PATCH',
   MINOR: 'MINOR',
   MAJOR: 'MAJOR',
+  INIT: 'INIT',
 };
 
-export {SortType, UserAction, UpdateType, FilterType};
+const Method = {
+  GET: 'GET',
+  PUT: 'PUT',
+};
+
+export {SortType, UserAction, UpdateType, FilterType, Method};

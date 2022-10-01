@@ -15,6 +15,7 @@ export default class TripListPresenter {
   #filterModel = null;
   #noWaypointView = null;
   #newWaypointPresenter = null;
+  #destinationsModel = null;
 
   #tripListComponent = new TripListView();
   #waypointsPresenter = new Map();
@@ -22,15 +23,22 @@ export default class TripListPresenter {
   #filterType = FilterType.ALL;
   #currentSortType = SortType.DEFAULT;
 
-  constructor(tripListContainer, waypointsModel, filterModel) {
+  constructor(tripListContainer, waypointsModel, filterModel, destinationsModel) {
     this.#tripListContainer = tripListContainer;
     this.#waypointsModel = waypointsModel;
     this.#filterModel = filterModel;
-
+    this.#destinationsModel = destinationsModel;
     this.#newWaypointPresenter = new NewWaypointPresenter(this.#tripListComponent.element, this.#handleViewAction);
 
     this.#waypointsModel.addObserver(this.#handleModelEvent);
     this.#filterModel.addObserver(this.#handleModelEvent);
+    this.#destinationsModel.addObserver(this.#handleModelEvent);
+
+  }
+
+  get destinations() {
+    const destinations = this.#destinationsModel.destinations;
+    return destinations;
   }
 
   get waypoints() {
@@ -71,7 +79,7 @@ export default class TripListPresenter {
   };
 
   #renderWaypoint = (waypoint) => {
-    const waypointPresenter = new WaypointPresenter(this.#tripListComponent.element, this.#handleViewAction, this.#handleModeChange);
+    const waypointPresenter = new WaypointPresenter(this.#tripListComponent.element, this.#handleViewAction, this.#handleModeChange, this.destinations);
     waypointPresenter.init(waypoint);
     this.#waypointsPresenter.set(waypoint.id, waypointPresenter);
   };
@@ -120,6 +128,9 @@ export default class TripListPresenter {
         this.#clearBoard({resetSortType: true});
         this.#renderBoard();
         break;
+      case UpdateType.INIT:
+        this.#clearBoard();
+        this.#renderBoard();
     }
   };
 
