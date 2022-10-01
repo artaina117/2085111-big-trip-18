@@ -49,7 +49,6 @@ const createEditFormTemplate = (waypoint, destinations, arrayOfOffers) => {
 
   const destinationById = destinations && destinations.length > 0 && destinations.filter((item) => item.id === destination)[0];
 
-
   const humanizedTimeFrom = dateFrom !== null
     ? humanizeFullDate(dateFrom)
     : '';
