@@ -3,19 +3,29 @@ import {UpdateType} from '../utils/const.js';
 
 export default class WaypointsModel extends Observable {
   #pointsApiService = null;
+  #destinationsApiService = null;
+  #offersApiService = null;
   #waypoints = [];
+  #destinations = [];
+  #offers = [];
 
-  constructor(pointsApiService) {
+  constructor(pointsApiService, destinationsApiService, offersApiService) {
     super();
     this.#pointsApiService = pointsApiService;
+    this.#destinationsApiService = destinationsApiService;
+    this.#offersApiService = offersApiService;
   }
 
   init = async () => {
     try {
       const waypoints = await this.#pointsApiService.waypoints;
       this.#waypoints = waypoints.map(this.#adaptToClient);
+      this.#destinations = await this.#destinationsApiService.destinations;
+      this.#offers = await this.#offersApiService.offers;
     } catch(err) {
       this.#waypoints = [];
+      this.#destinations = [];
+      this.#offers = [];
     }
 
     this._notify(UpdateType.INIT);
@@ -40,6 +50,14 @@ export default class WaypointsModel extends Observable {
 
   get waypoints() {
     return this.#waypoints;
+  }
+
+  get destinations() {
+    return this.#destinations;
+  }
+
+  get offers() {
+    return this.#offers;
   }
 
   updateWaypoint = (updateType, update) => {

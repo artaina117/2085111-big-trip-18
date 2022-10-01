@@ -47,7 +47,7 @@ const createEditFormOffersTemplate = (offers, checkedOffers) => `
 const createEditFormTemplate = (waypoint, destinations, arrayOfOffers) => {
   const {basePrice, dateFrom, dateTo, type, destination, offers} = waypoint;
 
-  const destinationById = destinations.filter((item) => item.id === destination)[0];
+  const destinationById = destinations && destinations.length > 0 && destinations.filter((item) => item.id === destination)[0];
 
 
   const humanizedTimeFrom = dateFrom !== null

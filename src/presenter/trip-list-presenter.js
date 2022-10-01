@@ -27,29 +27,23 @@ export default class TripListPresenter {
   #currentSortType = SortType.DEFAULT;
   #isLoading = true;
 
-  constructor(tripListContainer, waypointsModel, filterModel, destinationsModel, offersModel) {
+  constructor(tripListContainer, waypointsModel, filterModel) {
     this.#tripListContainer = tripListContainer;
     this.#waypointsModel = waypointsModel;
     this.#filterModel = filterModel;
-    this.#destinationsModel = destinationsModel;
-    this.#offersModel = offersModel;
     this.#newWaypointPresenter = new NewWaypointPresenter(this.#tripListComponent.element, this.#handleViewAction);
 
     this.#waypointsModel.addObserver(this.#handleModelEvent);
     this.#filterModel.addObserver(this.#handleModelEvent);
-    this.#destinationsModel.addObserver(this.#handleModelEvent);
-    this.#offersModel.addObserver(this.#handleModelEvent);
 
   }
 
   get destinations() {
-    const destinations = this.#destinationsModel.destinations;
-    return destinations;
+    return this.#waypointsModel.destinations;
   }
 
   get offers() {
-    const offers = this.#offersModel.offers;
-    return offers;
+    return this.#waypointsModel.offers;
   }
 
   get waypoints() {
@@ -111,7 +105,7 @@ export default class TripListPresenter {
 
     const waypoints = this.waypoints;
     const waypointsCount = waypoints.length;
-    console.log(waypointsCount);
+
     if (waypointsCount === 0) {
       this.#renderNoWaypointView();
       return;
@@ -149,7 +143,6 @@ export default class TripListPresenter {
         this.#renderBoard();
         break;
       case UpdateType.INIT:
-        console.log('!!!');
         this.#isLoading = false;
         remove(this.#loadingComponent);
         this.#renderBoard();
