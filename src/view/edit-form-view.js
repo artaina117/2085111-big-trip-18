@@ -1,6 +1,5 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import {humanizeFullDate, compareTime} from '../utils/waypoint.js';
-import {arrayOfOffers} from '../mock/offers.js';
 import flatpickr from 'flatpickr';
 import dayjs from 'dayjs';
 import he from 'he';
@@ -13,7 +12,7 @@ const BLANK_POINT = {
   dateTo: dayjs().toDate(),
   destination : 1,
   isFavorite : 0,
-  offers : arrayOfOffers[0],
+  offers : '',
   type: 'taxi',
 };
 
@@ -43,7 +42,7 @@ const createEditFormOffersTemplate = (offers, checkedOffers) => `
     </div>
   </section>`.split(',').join('\n');
 
-const createEditFormTemplate = (waypoint, destinations) => {
+const createEditFormTemplate = (waypoint, destinations, arrayOfOffers) => {
   const {basePrice, dateFrom, dateTo, type, destination, offers} = waypoint;
 
   const destinationById = destinations.filter((item) => item.id === destination)[0];
@@ -203,16 +202,18 @@ export default class EditFormView extends AbstractStatefulView {
   #datepickerFrom = null;
   #datepickerTo = null;
   #destinations = null;
+  #arrayOfOffers = null;
 
-  constructor(waypoint = BLANK_POINT, destinations) {
+  constructor(waypoint = BLANK_POINT, destinations, arrayOfOffers) {
     super();
     this._state = EditFormView.parsePointToState(waypoint);
     this.#destinations = destinations;
+    this.#arrayOfOffers = arrayOfOffers;
     this.#setInnerHandlers();
   }
 
   get template() {
-    return createEditFormTemplate(this._state, this.#destinations);
+    return createEditFormTemplate(this._state, this.#destinations, this.#arrayOfOffers);
   }
 
   static parsePointToState = (waypoint) => ({...waypoint});

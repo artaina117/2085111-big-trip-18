@@ -22,7 +22,7 @@ const waypointsModel = new WaypointsModel(new PointsApiService(END_POINT, AUTHOR
 const destinationsModel = new DestinationsModel(new DestinationsApiService(END_POINT, AUTHORIZATION));
 const offersModel = new OffersModel(new OffersApiService(END_POINT, AUTHORIZATION));
 const filterModel = new FilterModel();
-const tripListPresenter = new TripListPresenter(siteTripListElement, waypointsModel, filterModel, destinationsModel);
+const tripListPresenter = new TripListPresenter(siteTripListElement, waypointsModel, filterModel, destinationsModel, offersModel);
 const filterPresenter = new FilterPresenter(siteFilterElement, filterModel, waypointsModel);
 
 const handleNewWaypointFormClose = () => {

@@ -1,6 +1,5 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import {humanizeDate, humanizeTime, calculateDuration} from '../utils/waypoint.js';
-import {arrayOfOffers} from '../mock/offers.js';
 import he from 'he';
 
 const getOffers = (offersByType, offersIds) => {
@@ -24,7 +23,7 @@ const createWaipointOffersTemplate = (offers) =>`
   </ul>
   `.split(',').join('\n');
 
-const createWaypointTemplate = (waypoint, destinations) => {
+const createWaypointTemplate = (waypoint, destinations, arrayOfOffers) => {
   const {basePrice, dateFrom, dateTo, isFavorite, type, destination, offers} = waypoint;
 
   const destinationById = destinations.filter((item) => item.id === destination)[0];
@@ -89,15 +88,17 @@ const createWaypointTemplate = (waypoint, destinations) => {
 export default class WaypointView extends AbstractView {
   #waypoint = null;
   #destinations = null;
+  #arrayOfOffers = null;
 
-  constructor(waypoint, destinations) {
+  constructor(waypoint, destinations, arrayOfOffers) {
     super();
     this.#waypoint = waypoint;
     this.#destinations = destinations;
+    this.#arrayOfOffers = arrayOfOffers;
   }
 
   get template() {
-    return createWaypointTemplate(this.#waypoint, this.#destinations);
+    return createWaypointTemplate(this.#waypoint, this.#destinations, this.#arrayOfOffers);
   }
 
   setEditClickHandler = (callback) => {

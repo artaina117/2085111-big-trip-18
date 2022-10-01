@@ -16,6 +16,7 @@ export default class TripListPresenter {
   #noWaypointView = null;
   #newWaypointPresenter = null;
   #destinationsModel = null;
+  #offersModel = null;
 
   #tripListComponent = new TripListView();
   #waypointsPresenter = new Map();
@@ -23,22 +24,29 @@ export default class TripListPresenter {
   #filterType = FilterType.ALL;
   #currentSortType = SortType.DEFAULT;
 
-  constructor(tripListContainer, waypointsModel, filterModel, destinationsModel) {
+  constructor(tripListContainer, waypointsModel, filterModel, destinationsModel, offersModel) {
     this.#tripListContainer = tripListContainer;
     this.#waypointsModel = waypointsModel;
     this.#filterModel = filterModel;
     this.#destinationsModel = destinationsModel;
+    this.#offersModel = offersModel;
     this.#newWaypointPresenter = new NewWaypointPresenter(this.#tripListComponent.element, this.#handleViewAction);
 
     this.#waypointsModel.addObserver(this.#handleModelEvent);
     this.#filterModel.addObserver(this.#handleModelEvent);
     this.#destinationsModel.addObserver(this.#handleModelEvent);
+    this.#offersModel.addObserver(this.#handleModelEvent);
 
   }
 
   get destinations() {
     const destinations = this.#destinationsModel.destinations;
     return destinations;
+  }
+
+  get offers() {
+    const offers = this.#offersModel.offers;
+    return offers;
   }
 
   get waypoints() {
@@ -79,7 +87,7 @@ export default class TripListPresenter {
   };
 
   #renderWaypoint = (waypoint) => {
-    const waypointPresenter = new WaypointPresenter(this.#tripListComponent.element, this.#handleViewAction, this.#handleModeChange, this.destinations);
+    const waypointPresenter = new WaypointPresenter(this.#tripListComponent.element, this.#handleViewAction, this.#handleModeChange, this.destinations, this.offers);
     waypointPresenter.init(waypoint);
     this.#waypointsPresenter.set(waypoint.id, waypointPresenter);
   };
