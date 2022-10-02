@@ -54,7 +54,8 @@ export default class WaypointPresenter {
     }
 
     if (this.#mode === Mode.EDITING) {
-      replace(this.#waypointEditComponent, prevWaypointEditComponent);
+      replace(this.#waypointComponent, prevWaypointEditComponent);
+      this.#mode = Mode.DEFAULT;
     }
 
     remove(prevWaypointComponent);
@@ -109,7 +110,6 @@ export default class WaypointPresenter {
       isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH,
       update,
     );
-    this.#replaceFormToPoint();
   };
 
   #handleCloseEditClick = () => {
@@ -130,5 +130,40 @@ export default class WaypointPresenter {
       this.#waypointEditComponent.reset(this.#waypoint);
       this.#replaceFormToPoint();
     }
+  };
+
+  setSaving = () => {
+    if (this.#mode === Mode.EDITING) {
+      this.#waypointEditComponent.updateElement({
+        isDisabled: true,
+        isSaving: true,
+      });
+    }
+  };
+
+  setDeleting = () => {
+    if (this.#mode === Mode.EDITING) {
+      this.#waypointEditComponent.updateElement({
+        isDisabled: true,
+        isDeleting: true,
+      });
+    }
+  };
+
+  setAborting = () => {
+    if (this.#mode === Mode.DEFAULT) {
+      this.#waypointComponent.shake();
+      return;
+    }
+
+    const resetFormState = () => {
+      this.#waypointEditComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    this.#waypointEditComponent.shake(resetFormState);
   };
 }
