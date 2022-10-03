@@ -1,7 +1,7 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import {humanizeFullDate, compareTime} from '../utils/waypoint.js';
 import flatpickr from 'flatpickr';
-// import he from 'he';
+import he from 'he';
 
 import 'flatpickr/dist/flatpickr.min.css';
 
@@ -290,6 +290,7 @@ export default class EditFormView extends AbstractStatefulView {
     if (evt.target.tagName === 'INPUT') {
       this.updateElement({
         type: evt.target.value,
+        offers: [],
       });
     }
   };
@@ -321,7 +322,8 @@ export default class EditFormView extends AbstractStatefulView {
 
   #priceInputHandler = (evt) => {
     evt.preventDefault();
-    const newPrice = Number(evt.target.value);
+    let newPrice = he.encode(evt.target.value);
+    newPrice = Number(newPrice);
     if (newPrice > 0 && Number.isInteger(newPrice)) {
       this.element.querySelector('.event__save-btn').disabled = false;
       this._setState({
