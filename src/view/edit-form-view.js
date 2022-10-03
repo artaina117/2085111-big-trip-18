@@ -242,6 +242,7 @@ export default class EditFormView extends AbstractStatefulView {
   #setInnerHandlers = () => {
     this.element.querySelector('.event__type-group').addEventListener('click', this.#typeChangeHandler);
     this.element.querySelector('.event__input--destination').addEventListener('input', this.#destinationChangeHandler);
+    this.element.querySelector('.event__input--price').addEventListener('input', this.#priceInputHandler);
     this.#setDatepickers();
   };
 
@@ -313,6 +314,19 @@ export default class EditFormView extends AbstractStatefulView {
       dateTo: userDate,
     });
     compareTime(this._state, this.element);
+  };
+
+  #priceInputHandler = (evt) => {
+    evt.preventDefault();
+    const newPrice = Number(evt.target.value);
+    if (newPrice > 0 && Number.isInteger(newPrice)) {
+      this.element.querySelector('.event__save-btn').disabled = false;
+      this._setState({
+        basePrice: newPrice,
+      });
+    } else {
+      this.element.querySelector('.event__save-btn').disabled = true;
+    }
   };
 
   #setDatepickers = () => {
