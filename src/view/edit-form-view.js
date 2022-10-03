@@ -1,20 +1,9 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import {humanizeFullDate, compareTime} from '../utils/waypoint.js';
 import flatpickr from 'flatpickr';
-import dayjs from 'dayjs';
 // import he from 'he';
 
 import 'flatpickr/dist/flatpickr.min.css';
-
-const BLANK_POINT = {
-  basePrice : 0,
-  dateFrom: dayjs().toDate(),
-  dateTo: dayjs().toDate(),
-  destination : 1,
-  isFavorite : 0,
-  offers : '',
-  type: 'taxi',
-};
 
 const getOffers = (offersByType, offersIds) => {
   const offersArray = [];
@@ -27,14 +16,47 @@ const getOffers = (offersByType, offersIds) => {
   return offersArray;
 };
 
-const createEditFormOffersTemplate = (offers, checkedOffers) => `
+const getDestinationDescription = (destinationById) => {
+
+  if (destinationById) {
+    const createPhotosForDestination = () => {
+      let photos = '';
+      for (let i = 0; i < destinationById.pictures.length; i++) {
+        const src = destinationById.pictures[i].src;
+        const description = destinationById.pictures[i].description;
+        photos += `<img class="event__photo" src="${src}" alt="${description}"></img>`;
+      }
+      return photos;
+    };
+
+    const renderPhotosOfDestination = () => {
+      if (destinationById.pictures) {
+        return (`<div class="event__photos-container">
+        <div class="event__photos-tape">
+          ${createPhotosForDestination()}
+        </div>`);
+      }
+    };
+
+    return (`
+    <section class="event__section  event__section--destination">
+    <h3 class="event__section-title  event__section-title--destination">Destination</h3>
+    <p class="event__destination-description">${destinationById.description}</p>
+    ${renderPhotosOfDestination()}
+    </section>
+  `);
+  }
+  return '';
+};
+
+const createEditFormOffersTemplate = (offers, checkedOffers, isDisabled) => `
   <section class="event__section  event__section--offers">
     <h3 class="event__section-title  event__section-title--offers">Offers</h3>
     <div class="event__available-offers">
     ${offers && offers.length > 0 && offers.map((offer) => `
       <div class="event__offer-selector">
         <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-1" type="checkbox" name="event-offer-luggage"
-          ${checkedOffers.filter((element) => element.id === offer.id).length > 0 ? 'checked' : ''}>
+          ${checkedOffers.filter((element) => element.id === offer.id).length > 0 ? 'checked' : ''} ${isDisabled ? 'disabled' : ''}>
         <label class="event__offer-label" for="event-offer-luggage-1">
           <span class="event__offer-title">${offer.title}</span>
           &plus;&euro;&nbsp;
@@ -45,9 +67,13 @@ const createEditFormOffersTemplate = (offers, checkedOffers) => `
   </section>`.split(',').join('\n');
 
 const createEditFormTemplate = (waypoint, destinations, arrayOfOffers) => {
-  const {basePrice, dateFrom, dateTo, type, destination, offers} = waypoint;
+  const {basePrice, dateFrom, dateTo, type, destination, offers, isDisabled, isSaving, isDeleting} = waypoint;
 
-  const destinationById = destinations && destinations.length > 0 && destinations.filter((item) => item.id === destination)[0];
+  const destinationById = destination && destinations && destinations.length > 0
+    ? destinations.filter((item) => item.id === destination)[0]
+    : '';
+
+  const descriptionTemplate = getDestinationDescription(destinationById);
 
   const humanizedTimeFrom = dateFrom !== null
     ? humanizeFullDate(dateFrom)
@@ -57,34 +83,19 @@ const createEditFormTemplate = (waypoint, destinations, arrayOfOffers) => {
     ? humanizeFullDate(dateTo)
     : '';
 
-  const offersByType = arrayOfOffers.find((element) => element.type === type)?.offers;
-  const neededOffers = getOffers(offersByType, offers);
-  const offersTemplate = offersByType?.length !== 0
-    ? createEditFormOffersTemplate(offersByType, neededOffers)
-    : '';
+  let offersTemplate = '';
 
-  const createPhotosForDestination = () => {
-    let photos = '';
-    for (let i = 0; i < destinationById.pictures.length; i++) {
-      const src = destinationById.pictures[i].src;
-      const description = destinationById.pictures[i].description;
-      photos += `<img class="event__photo" src="${src}" alt="${description}"></img>`;
-    }
-    return photos;
-  };
-
-  const renderPhotosOfDestination = () => {
-    if (destinationById?.pictures) {
-      return (`<div class="event__photos-container">
-      <div class="event__photos-tape">
-        ${createPhotosForDestination()}
-      </div>`);
-    }
-  };
+  if (arrayOfOffers?.length > 0) {
+    const offersByType = arrayOfOffers.find((element) => element.type === type)?.offers;
+    const neededOffers = getOffers(offersByType, offers);
+    offersTemplate = offersByType?.length !== 0
+      ? createEditFormOffersTemplate(offersByType, neededOffers, isDisabled)
+      : '';
+  }
 
   const createDatalistOfDestinations = () => {
     let listElements = '';
-    for (let i = 0; i < destinations.length; i++) {
+    for (let i = 0; i < destinations?.length; i++) {
       listElements += `<option value="${destinations[i].name}">`;
     }
     return listElements;
@@ -99,7 +110,7 @@ const createEditFormTemplate = (waypoint, destinations, arrayOfOffers) => {
               <span class="visually-hidden">Choose event type</span>
               <img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon">
             </label>
-            <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
+            <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox" ${isDisabled ? 'disabled' : ''}>
 
             <div class="event__type-list">
               <fieldset class="event__type-group">
@@ -157,7 +168,7 @@ const createEditFormTemplate = (waypoint, destinations, arrayOfOffers) => {
             <label class="event__label  event__type-output" for="event-destination-1">
               ${type}
             </label>
-            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destinationById?.name}" list="destination-list-1">
+            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destinationById ? destinationById.name : ''}" list="destination-list-1" ${isDisabled ? 'disabled' : ''}>
             <datalist id="destination-list-1">
               ${createDatalistOfDestinations()}
             </datalist>
@@ -165,10 +176,10 @@ const createEditFormTemplate = (waypoint, destinations, arrayOfOffers) => {
 
           <div class="event__field-group  event__field-group--time">
             <label class="visually-hidden" for="event-start-time-1">From</label>
-            <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${humanizedTimeFrom}">
+            <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${humanizedTimeFrom}" ${isDisabled ? 'disabled' : ''}>
             &mdash;
             <label class="visually-hidden" for="event-end-time-1">To</label>
-            <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${humanizedTimeTo}">
+            <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${humanizedTimeTo}" ${isDisabled ? 'disabled' : ''}>
           </div>
 
           <div class="event__field-group  event__field-group--price">
@@ -176,23 +187,18 @@ const createEditFormTemplate = (waypoint, destinations, arrayOfOffers) => {
               <span class="visually-hidden">Price</span>
               &euro;
             </label>
-            <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice}">
+            <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice ? basePrice : ''}" ${isDisabled ? 'disabled' : ''}>
           </div>
 
-          <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-          <button class="event__reset-btn" type="reset">Delete</button>
-          <button class="event__rollup-btn" type="button">
+          <button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled ? 'disabled' : ''}>${isSaving ? 'Saving...' : 'Save'}</button>
+          <button class="event__reset-btn" type="reset" ${isDisabled ? 'disabled' : ''}>${isDeleting ? 'Deleting...' : 'Delete'}</button>
+          <button class="event__rollup-btn" type="button" ${isDisabled ? 'disabled' : ''}>
             <span class="visually-hidden">Open event</span>
           </button>
         </header>
         <section class="event__details">
         ${offersTemplate}
-
-          <section class="event__section  event__section--destination">
-            <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-            <p class="event__destination-description">${destinationById?.description}</p>
-            ${renderPhotosOfDestination()}
-          </section>
+        ${descriptionTemplate}
         </section>
       </form>
     </li>`
@@ -205,7 +211,7 @@ export default class EditFormView extends AbstractStatefulView {
   #destinations = null;
   #arrayOfOffers = null;
 
-  constructor(waypoint = BLANK_POINT, destinations, arrayOfOffers) {
+  constructor(waypoint, destinations, arrayOfOffers) {
     super();
     this._state = EditFormView.parsePointToState(waypoint);
     this.#destinations = destinations;
@@ -217,9 +223,21 @@ export default class EditFormView extends AbstractStatefulView {
     return createEditFormTemplate(this._state, this.#destinations, this.#arrayOfOffers);
   }
 
-  static parsePointToState = (waypoint) => ({...waypoint});
+  static parsePointToState = (waypoint) => ({...waypoint,
+    isDisabled: false,
+    isSaving: false,
+    isDeleting: false
+  });
 
-  static parseStateToPoint = (waypoint) => ({...waypoint});
+  static parseStateToPoint = (state) => {
+    const waypoint = {...state};
+
+    delete waypoint.isDisabled;
+    delete waypoint.isSaving;
+    delete waypoint.isDeleting;
+
+    return waypoint;
+  };
 
   #setInnerHandlers = () => {
     this.element.querySelector('.event__type-group').addEventListener('click', this.#typeChangeHandler);
