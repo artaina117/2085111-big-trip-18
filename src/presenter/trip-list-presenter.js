@@ -178,6 +178,7 @@ export default class TripListPresenter {
 
   #handleModeChange = () => {
     this.#waypointsPresenter.forEach((presenter) => presenter.resetView());
+    this.#newWaypointPresenter?.destroy();
   };
 
   #handleSortTypeChange = (sortType) => {
