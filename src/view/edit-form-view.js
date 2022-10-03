@@ -5,17 +5,6 @@ import flatpickr from 'flatpickr';
 
 import 'flatpickr/dist/flatpickr.min.css';
 
-const getOffers = (offersByType, offersIds) => {
-  const offersArray = [];
-  for (let i = 0; i < offersIds.length; i++) {
-    if (offersByType?.length > 0) {
-      const offer = offersByType.filter((element) => element.id === offersIds[i]);
-      offersArray.push(...offer);
-    }
-  }
-  return offersArray;
-};
-
 const getDestinationDescription = (destinationById) => {
 
   if (destinationById) {
@@ -49,15 +38,26 @@ const getDestinationDescription = (destinationById) => {
   return '';
 };
 
-const createEditFormOffersTemplate = (offers, checkedOffers, isDisabled) => `
+const getSelectedOffers = (offersByType, offersIds) => {
+  const selectedOffersArray = [];
+  if (offersByType?.length > 0) {
+    for (let i = 0; i < offersIds.length; i++) {
+      const offers = offersByType.filter((element) => element.id === offersIds[i]);
+      selectedOffersArray.push(...offers);
+    }
+  }
+  return selectedOffersArray;
+};
+
+const createOffersTemplate = (offers, selectedOffers, isDisabled) => `
   <section class="event__section  event__section--offers">
     <h3 class="event__section-title  event__section-title--offers">Offers</h3>
     <div class="event__available-offers">
     ${offers && offers.length > 0 && offers.map((offer) => `
       <div class="event__offer-selector">
-        <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-1" type="checkbox" name="event-offer-luggage"
-          ${checkedOffers.filter((element) => element.id === offer.id).length > 0 ? 'checked' : ''} ${isDisabled ? 'disabled' : ''}>
-        <label class="event__offer-label" for="event-offer-luggage-1">
+        <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.id}" type="checkbox" name="event-offer-${offer.id}"
+          ${selectedOffers.filter((element) => element.id === offer.id).length > 0 ? 'checked' : ''} ${isDisabled ? 'disabled' : ''}>
+        <label class="event__offer-label" for="event-offer-${offer.id}">
           <span class="event__offer-title">${offer.title}</span>
           &plus;&euro;&nbsp;
           <span class="event__offer-price">${offer.price}</span>
@@ -84,12 +84,11 @@ const createEditFormTemplate = (waypoint, destinations, arrayOfOffers) => {
     : '';
 
   let offersTemplate = '';
-
   if (arrayOfOffers?.length > 0) {
     const offersByType = arrayOfOffers.find((element) => element.type === type)?.offers;
-    const neededOffers = getOffers(offersByType, offers);
+    const selectedOffers = getSelectedOffers(offersByType, offers);
     offersTemplate = offersByType?.length !== 0
-      ? createEditFormOffersTemplate(offersByType, neededOffers, isDisabled)
+      ? createOffersTemplate(offersByType, selectedOffers, isDisabled)
       : '';
   }
 
@@ -187,7 +186,7 @@ const createEditFormTemplate = (waypoint, destinations, arrayOfOffers) => {
               <span class="visually-hidden">Price</span>
               &euro;
             </label>
-            <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice ? basePrice : ''}" ${isDisabled ? 'disabled' : ''}>
+            <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" maxlength="6" value="${basePrice ? basePrice : ''}" ${isDisabled ? 'disabled' : ''}>
           </div>
 
           <button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled ? 'disabled' : ''}>${isSaving ? 'Saving...' : 'Save'}</button>
@@ -243,6 +242,10 @@ export default class EditFormView extends AbstractStatefulView {
     this.element.querySelector('.event__type-group').addEventListener('click', this.#typeChangeHandler);
     this.element.querySelector('.event__input--destination').addEventListener('input', this.#destinationChangeHandler);
     this.element.querySelector('.event__input--price').addEventListener('input', this.#priceInputHandler);
+
+    const offersElements = this.element.querySelectorAll('.event__offer-checkbox');
+    offersElements.forEach((offer) => offer.addEventListener('change', this.#offersChangeHandler));
+
     this.#setDatepickers();
   };
 
@@ -326,6 +329,26 @@ export default class EditFormView extends AbstractStatefulView {
       });
     } else {
       this.element.querySelector('.event__save-btn').disabled = true;
+    }
+  };
+
+  #offersChangeHandler = (evt) => {
+    evt.preventDefault();
+    if (evt.target.tagName === 'INPUT') {
+      const currentOffersIds = this._state.offers.slice();
+      const offerId = Number(evt.target.id.slice(-1));
+      let resultOffersIds = [];
+
+      if (!currentOffersIds.includes(offerId)) {
+        currentOffersIds.push(offerId);
+        resultOffersIds = [...currentOffersIds];
+      } else {
+        resultOffersIds = currentOffersIds.filter((id) => id !== offerId);
+      }
+
+      this.updateElement({
+        offers: resultOffersIds,
+      });
     }
   };
 
