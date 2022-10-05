@@ -39,14 +39,14 @@ const getDestinationDescription = (destinationById) => {
 };
 
 const getSelectedOffers = (offersByType, offersIds) => {
-  const selectedOffersArray = [];
+  const selectedOffers = [];
   if (offersByType?.length > 0) {
     for (let i = 0; i < offersIds.length; i++) {
       const offers = offersByType.filter((element) => element.id === offersIds[i]);
-      selectedOffersArray.push(...offers);
+      selectedOffers.push(...offers);
     }
   }
-  return selectedOffersArray;
+  return selectedOffers;
 };
 
 const createOffersTemplate = (offers, selectedOffers, isDisabled) => `
@@ -66,7 +66,7 @@ const createOffersTemplate = (offers, selectedOffers, isDisabled) => `
     </div>
   </section>`.split(',').join('\n');
 
-const createEditFormTemplate = (waypoint, destinations, arrayOfOffers) => {
+const createEditFormTemplate = (waypoint, destinations, defaultOffers) => {
   const {basePrice, dateFrom, dateTo, type, destination, offers, isDisabled, isSaving, isDeleting} = waypoint;
 
   const destinationById = destination && destinations && destinations.length > 0
@@ -84,8 +84,8 @@ const createEditFormTemplate = (waypoint, destinations, arrayOfOffers) => {
     : '';
 
   let offersTemplate = '';
-  if (arrayOfOffers?.length > 0) {
-    const offersByType = arrayOfOffers.find((element) => element.type === type)?.offers;
+  if (defaultOffers?.length > 0) {
+    const offersByType = defaultOffers.find((element) => element.type === type)?.offers;
     const selectedOffers = getSelectedOffers(offersByType, offers);
     offersTemplate = offersByType?.length !== 0
       ? createOffersTemplate(offersByType, selectedOffers, isDisabled)
@@ -208,18 +208,18 @@ export default class EditFormView extends AbstractStatefulView {
   #datepickerFrom = null;
   #datepickerTo = null;
   #destinations = null;
-  #arrayOfOffers = null;
+  #defaultOffers = null;
 
-  constructor(waypoint, destinations, arrayOfOffers) {
+  constructor(waypoint, destinations, defaultOffers) {
     super();
     this._state = EditFormView.parsePointToState(waypoint);
     this.#destinations = destinations;
-    this.#arrayOfOffers = arrayOfOffers;
+    this.#defaultOffers = defaultOffers;
     this.#setInnerHandlers();
   }
 
   get template() {
-    return createEditFormTemplate(this._state, this.#destinations, this.#arrayOfOffers);
+    return createEditFormTemplate(this._state, this.#destinations, this.#defaultOffers);
   }
 
   static parsePointToState = (waypoint) => ({...waypoint,

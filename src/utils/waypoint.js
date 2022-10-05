@@ -70,9 +70,9 @@ const sortByDay = (a, b) => {
   }
 };
 
-const compareTime = (object, element) => {
-  const date1 = dayjs(object.dateFrom);
-  const date2 = dayjs(object.dateTo);
+const compareTime = (waypoint, element) => {
+  const date1 = dayjs(waypoint.dateFrom);
+  const date2 = dayjs(waypoint.dateTo);
   const diff = date2.diff(date1, 'minutes');
   if (diff < 0) {
     element.querySelector('.event__save-btn').disabled = true;
