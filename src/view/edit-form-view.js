@@ -187,10 +187,10 @@ const createEditFormTemplate = (waypoint, destinations, defaultOffers) => {
               <span class="visually-hidden">Price</span>
               &euro;
             </label>
-            <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" maxlength="6" value="${basePrice ? basePrice : ''}" ${isDisabled ? 'disabled' : ''}>
+            <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" maxlength="6" value="${basePrice ? basePrice : ''}" ${isDisabled} ? 'disabled' : ''}>
           </div>
 
-          <button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled ? 'disabled' : ''}>${isSaving ? 'Saving...' : 'Save'}</button>
+          <button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled || !destinationById || !basePrice ? 'disabled' : ''}>${isSaving ? 'Saving...' : 'Save'}</button>
           <button class="event__reset-btn" type="reset" ${isDisabled ? 'disabled' : ''}>${isDeleting ? 'Deleting...' : 'Delete'}</button>
           <button class="event__rollup-btn" type="button" ${isDisabled ? 'disabled' : ''}>
             <span class="visually-hidden">Open event</span>
@@ -287,7 +287,10 @@ export default class EditFormView extends AbstractStatefulView {
         destination: newDestinationId[0].id,
       });
     } else {
-      this.element.querySelector('.event__save-btn').disabled = true;
+      this.updateElement({
+        destination: null,
+      });
+      // this.element.querySelector('.event__save-btn').disabled = true;
     }
   };
 
@@ -310,7 +313,9 @@ export default class EditFormView extends AbstractStatefulView {
     let newPrice = he.encode(evt.target.value);
     newPrice = Number(newPrice);
     if (newPrice > 0 && Number.isInteger(newPrice)) {
-      this.element.querySelector('.event__save-btn').disabled = false;
+      if (this._state.destination) {
+        this.element.querySelector('.event__save-btn').disabled = false;
+      }
       this._setState({
         basePrice: newPrice,
       });

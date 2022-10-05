@@ -4,7 +4,7 @@ import {UserAction, UpdateType} from '../utils/const.js';
 import dayjs from 'dayjs';
 
 const BLANK_POINT = {
-  basePrice : '',
+  basePrice : null,
   dateFrom: dayjs().toDate(),
   dateTo: dayjs().toDate(),
   destination : null,
