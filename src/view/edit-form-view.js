@@ -10,9 +10,10 @@ const getDestinationDescription = (destinationById) => {
   if (destinationById) {
     const createPhotosForDestination = () => {
       let photos = '';
-      for (let i = 0; i < destinationById.pictures.length; i++) {
-        const src = destinationById.pictures[i].src;
-        const description = destinationById.pictures[i].description;
+      const pictures = destinationById.pictures;
+      for (const picture of pictures) {
+        const src = picture.src;
+        const description = picture.description;
         photos += `<img class="event__photo" src="${src}" alt="${description}"></img>`;
       }
       return photos;
@@ -41,8 +42,8 @@ const getDestinationDescription = (destinationById) => {
 const getSelectedOffers = (offersByType, offersIds) => {
   const selectedOffers = [];
   if (offersByType?.length > 0) {
-    for (let i = 0; i < offersIds.length; i++) {
-      const offers = offersByType.filter((element) => element.id === offersIds[i]);
+    for (const id of offersIds) {
+      const offers = offersByType.filter((element) => element.id === id);
       selectedOffers.push(...offers);
     }
   }
@@ -94,8 +95,8 @@ const createEditFormTemplate = (waypoint, destinations, defaultOffers) => {
 
   const createDatalistOfDestinations = () => {
     let listElements = '';
-    for (let i = 0; i < destinations?.length; i++) {
-      listElements += `<option value="${destinations[i].name}">`;
+    for (const versionOfDestination of destinations) {
+      listElements += `<option value="${versionOfDestination.name}">`;
     }
     return listElements;
   };

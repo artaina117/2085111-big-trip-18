@@ -2,14 +2,14 @@ import AbstractView from '../framework/view/abstract-view.js';
 import {humanizeDate, humanizeTime, calculateDuration} from '../utils/waypoint.js';
 
 const getOffers = (offersByType, offersIds) => {
-  const offersArray = [];
-  for (let i = 0; i < offersIds.length; i++) {
-    if (offersByType?.length > 0) {
-      const offer = offersByType.filter((element) => element.id === offersIds[i]);
-      offersArray.push(...offer);
+  const offers = [];
+  if (offersByType?.length > 0) {
+    for (const id of offersIds) {
+      const offer = offersByType.filter((element) => element.id === id);
+      offers.push(...offer);
     }
   }
-  return offersArray;
+  return offers;
 };
 
 const createWaipointOffersTemplate = (offers) =>`
@@ -24,7 +24,7 @@ const createWaipointOffersTemplate = (offers) =>`
   </ul>
   `.split(',').join('\n');
 
-const createWaypointTemplate = (waypoint, destinations, arrayOfOffers) => {
+const createWaypointTemplate = (waypoint, destinations, defaultOffers) => {
   const {basePrice, dateFrom, dateTo, isFavorite, type, destination, offers} = waypoint;
 
   const destinationById = destinations && destinations.length > 0 && destinations.filter((item) => item.id === destination)[0];
@@ -45,7 +45,7 @@ const createWaypointTemplate = (waypoint, destinations, arrayOfOffers) => {
 
   const favoriteClassName = isFavorite ? 'event__favorite-btn--active' : '';
 
-  const offersByType = arrayOfOffers?.find((element) => element.type === type)?.offers;
+  const offersByType = defaultOffers?.find((element) => element.type === type)?.offers;
   const neededOffers = getOffers(offersByType, offers);
   const offersTemplate = neededOffers?.length !== 0
     ? createWaipointOffersTemplate(neededOffers)
@@ -89,17 +89,17 @@ const createWaypointTemplate = (waypoint, destinations, arrayOfOffers) => {
 export default class WaypointView extends AbstractView {
   #waypoint = null;
   #destinations = null;
-  #arrayOfOffers = null;
+  #defaultOffers = null;
 
-  constructor(waypoint, destinations, arrayOfOffers) {
+  constructor(waypoint, destinations, defaultOffers) {
     super();
     this.#waypoint = waypoint;
     this.#destinations = destinations;
-    this.#arrayOfOffers = arrayOfOffers;
+    this.#defaultOffers = defaultOffers;
   }
 
   get template() {
-    return createWaypointTemplate(this.#waypoint, this.#destinations, this.#arrayOfOffers);
+    return createWaypointTemplate(this.#waypoint, this.#destinations, this.#defaultOffers);
   }
 
   setEditClickHandler = (callback) => {
