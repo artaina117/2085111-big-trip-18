@@ -5,8 +5,8 @@ import FilterPresenter from './presenter/filter-presenter.js';
 import NewWaypointButtonView from './view/new-waypoint-button-view.js';
 import {render} from './framework/render.js';
 import PointsApiService from './api-service/points-api-service.js';
-import DestinationsApiService from './api-service/destination-api-server.js';
-import OffersApiService from './api-service/offers-api-server.js';
+import DestinationsApiService from './api-service/destinations-api-service.js';
+import OffersApiService from './api-service/offers-api-service.js';
 
 const END_POINT = 'https://18.ecmascript.pages.academy/big-trip/';
 const AUTHORIZATION = 'Basic n65ldkms54003k';

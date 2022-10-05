@@ -1,5 +1,5 @@
 import {render, replace, remove} from '../framework/render.js';
-import FilterView from '../view/filter-view.js';
+import FiltersView from '../view/filters-view.js';
 import {UpdateType} from '../utils/const.js';
 
 export default class FilterPresenter {
@@ -21,7 +21,7 @@ export default class FilterPresenter {
   init = () => {
     const prevFilterComponent = this.#filterComponent;
 
-    this.#filterComponent = new FilterView(this.#waypointsModel.waypoints, this.#filterModel.filter);
+    this.#filterComponent = new FiltersView(this.#waypointsModel.waypoints, this.#filterModel.filter);
     this.#filterComponent.setFilterTypeChangeHandler(this.#handleFilterTypeChange);
 
     if (prevFilterComponent === null) {
