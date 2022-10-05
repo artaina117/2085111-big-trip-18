@@ -222,22 +222,6 @@ export default class EditFormView extends AbstractStatefulView {
     return createEditFormTemplate(this._state, this.#destinations, this.#defaultOffers);
   }
 
-  static parsePointToState = (waypoint) => ({...waypoint,
-    isDisabled: false,
-    isSaving: false,
-    isDeleting: false
-  });
-
-  static parseStateToPoint = (state) => {
-    const waypoint = {...state};
-
-    delete waypoint.isDisabled;
-    delete waypoint.isSaving;
-    delete waypoint.isDeleting;
-
-    return waypoint;
-  };
-
   #setInnerHandlers = () => {
     this.element.querySelector('.event__type-group').addEventListener('click', this.#typeChangeHandler);
     this.element.querySelector('.event__input--destination').addEventListener('input', this.#destinationChangeHandler);
@@ -393,5 +377,21 @@ export default class EditFormView extends AbstractStatefulView {
       this.#datepickerFrom.destroy();
       this.#datepickerFrom = null;
     }
+  };
+
+  static parsePointToState = (waypoint) => ({...waypoint,
+    isDisabled: false,
+    isSaving: false,
+    isDeleting: false
+  });
+
+  static parseStateToPoint = (state) => {
+    const waypoint = {...state};
+
+    delete waypoint.isDisabled;
+    delete waypoint.isSaving;
+    delete waypoint.isDeleting;
+
+    return waypoint;
   };
 }

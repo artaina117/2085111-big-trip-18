@@ -63,11 +63,10 @@ const sortByDay = (a, b) => {
   const diff = aDate - bDate;
   if (diff !== 0) {
     return diff;
-  } else {
-    const bTime = dayjs(b.dateFrom).format('H');
-    const aTime = dayjs(a.dateFrom).format('H');
-    return aTime - bTime;
   }
+  const bTime = dayjs(b.dateFrom).format('H');
+  const aTime = dayjs(a.dateFrom).format('H');
+  return aTime - bTime;
 };
 
 const compareTime = (waypoint, element) => {
