@@ -281,24 +281,35 @@ export default class EditFormView extends AbstractStatefulView {
   };
 
   #destinationChangeHandler = (evt) => {
+    const destination = this.#destinations.find((element) => (element.name === evt.target.value))?.id || 0;
+    const isValidDestination = Boolean(destination);
+
+    this.element.querySelector('.event__input--destination').style.backgroundColor = isValidDestination ? '' : '#ff572245';
+
     this.#validateForm({
-      destination: this.#destinations.find((element) => (element.name === evt.target.value))?.id || 0
+      destination,
+      isValidDestination
     });
   };
 
   #priceInputHandler = (evt) => {
+    const basePrice = he.encode(evt.target.value);
+    const isValidPrice = basePrice > 0;
+
+    this.element.querySelector('.event__input--price').style.backgroundColor = isValidPrice ? '' : '#ff572245';
+
     this.#validateForm({
-      basePrice: he.encode(evt.target.value),
+      basePrice,
+      isValidPrice
     });
   };
 
   #validateForm = (state = {}) => {
     const basePrice = state.basePrice ?? this._state.basePrice;
     const destination = state.destination ?? this._state.destination;
-
-    const isValidPrice = basePrice > 0;
-    const isValidDestination = Boolean(destination);
-    const isValidSave = isValidDestination && isValidPrice;
+    const isValidDestination = state.isValidDestination ?? this._state.isValidDestination;
+    const isValidPrice = state.isValidPrice ?? this._state.isValidPrice;
+    const isValidSave = isValidPrice && isValidDestination;
 
     this._setState({
       isValidPrice,
