@@ -281,17 +281,34 @@ export default class EditFormView extends AbstractStatefulView {
   };
 
   #destinationChangeHandler = (evt) => {
-    if (this.#destinations.some((element) => (element.name === evt.target.value))) {
-      const newDestinationId = this.#destinations.filter((item) => item.name === evt.target.value);
-      this.updateElement({
-        destination: newDestinationId[0].id,
-      });
-    } else {
-      this.updateElement({
-        destination: null,
-      });
-      // this.element.querySelector('.event__save-btn').disabled = true;
-    }
+    this.#validateForm({
+      destination: this.#destinations.find((element) => (element.name === evt.target.value))?.id || 0
+    });
+  };
+
+  #priceInputHandler = (evt) => {
+    this.#validateForm({
+      basePrice: he.encode(evt.target.value),
+    });
+  };
+
+  #validateForm = (state = {}) => {
+    const basePrice = state.basePrice ?? this._state.basePrice;
+    const destination = state.destination ?? this._state.destination;
+
+    const isValidPrice = basePrice > 0;
+    const isValidDestination = Boolean(destination);
+    const isValidSave = isValidDestination && isValidPrice;
+
+    this._setState({
+      isValidPrice,
+      isValidDestination,
+      isValidSave,
+      basePrice,
+      destination
+    });
+
+    this.element.querySelector('.event__save-btn').disabled = !isValidSave;
   };
 
   #dateFromChangeHandler = ([userDate]) => {
@@ -306,22 +323,6 @@ export default class EditFormView extends AbstractStatefulView {
       dateTo: userDate,
     });
     compareTime(this._state, this.element);
-  };
-
-  #priceInputHandler = (evt) => {
-    evt.preventDefault();
-    let newPrice = he.encode(evt.target.value);
-    newPrice = Number(newPrice);
-    if (newPrice > 0 && Number.isInteger(newPrice)) {
-      if (this._state.destination) {
-        this.element.querySelector('.event__save-btn').disabled = false;
-      }
-      this._setState({
-        basePrice: newPrice,
-      });
-    } else {
-      this.element.querySelector('.event__save-btn').disabled = true;
-    }
   };
 
   #offersChangeHandler = (evt) => {
@@ -388,7 +389,10 @@ export default class EditFormView extends AbstractStatefulView {
   static parsePointToState = (waypoint) => ({...waypoint,
     isDisabled: false,
     isSaving: false,
-    isDeleting: false
+    isDeleting: false,
+    isValidSave: true,
+    isValidPrice: true,
+    isValidDestination: true,
   });
 
   static parseStateToPoint = (state) => {
