@@ -286,11 +286,16 @@ export default class EditFormView extends AbstractStatefulView {
       this.updateElement({
         destination: newDestinationId[0].id,
       });
-    } else {
-      this.updateElement({
-        destination: null,
+
+      this._setState({
+        isDestination: true,
       });
-      // this.element.querySelector('.event__save-btn').disabled = true;
+      this.#validateForm();
+    } else {
+      this._setState({
+        isDestination: false,
+      });
+      this.#validateForm();
     }
   };
 
@@ -313,14 +318,17 @@ export default class EditFormView extends AbstractStatefulView {
     let newPrice = he.encode(evt.target.value);
     newPrice = Number(newPrice);
     if (newPrice > 0 && Number.isInteger(newPrice)) {
-      if (this._state.destination) {
-        this.element.querySelector('.event__save-btn').disabled = false;
-      }
       this._setState({
         basePrice: newPrice,
+        isPrice: true,
       });
+      this.#validateForm();
     } else {
-      this.element.querySelector('.event__save-btn').disabled = true;
+      this._setState({
+        basePrice: 0,
+        isPrice: false,
+      });
+      this.#validateForm();
     }
   };
 
@@ -342,6 +350,7 @@ export default class EditFormView extends AbstractStatefulView {
         offers: resultOffersIds,
       });
     }
+    this.#validateForm();
   };
 
   #setDatepickers = () => {
@@ -370,6 +379,22 @@ export default class EditFormView extends AbstractStatefulView {
     }
   };
 
+  #validateForm = () => {
+    if (!this._state.destination) {
+      this._setState({
+        isDestination: false,
+      });
+    }
+
+    if (!this._state.basePrice) {
+      this._setState({
+        isPrice: false,
+      });
+    }
+
+    this.element.querySelector('.event__save-btn').disabled = !this._state.isDestination || !this._state.isPrice;
+  };
+
   reset = (waypoint) => {
     this.updateElement(
       EditFormView.parsePointToState(waypoint),
@@ -388,7 +413,9 @@ export default class EditFormView extends AbstractStatefulView {
   static parsePointToState = (waypoint) => ({...waypoint,
     isDisabled: false,
     isSaving: false,
-    isDeleting: false
+    isDeleting: false,
+    isDestination: true,
+    isPrice: true,
   });
 
   static parseStateToPoint = (state) => {
@@ -397,6 +424,8 @@ export default class EditFormView extends AbstractStatefulView {
     delete waypoint.isDisabled;
     delete waypoint.isSaving;
     delete waypoint.isDeleting;
+    delete waypoint.isDestination;
+    delete waypoint.isPrice;
 
     return waypoint;
   };
