@@ -10,9 +10,10 @@ const getDestinationDescription = (destinationById) => {
   if (destinationById) {
     const createPhotosForDestination = () => {
       let photos = '';
-      for (let i = 0; i < destinationById.pictures.length; i++) {
-        const src = destinationById.pictures[i].src;
-        const description = destinationById.pictures[i].description;
+      const pictures = destinationById.pictures;
+      for (const picture of pictures) {
+        const src = picture.src;
+        const description = picture.description;
         photos += `<img class="event__photo" src="${src}" alt="${description}"></img>`;
       }
       return photos;
@@ -39,14 +40,14 @@ const getDestinationDescription = (destinationById) => {
 };
 
 const getSelectedOffers = (offersByType, offersIds) => {
-  const selectedOffersArray = [];
+  const selectedOffers = [];
   if (offersByType?.length > 0) {
-    for (let i = 0; i < offersIds.length; i++) {
-      const offers = offersByType.filter((element) => element.id === offersIds[i]);
-      selectedOffersArray.push(...offers);
+    for (const id of offersIds) {
+      const offers = offersByType.filter((element) => element.id === id);
+      selectedOffers.push(...offers);
     }
   }
-  return selectedOffersArray;
+  return selectedOffers;
 };
 
 const createOffersTemplate = (offers, selectedOffers, isDisabled) => `
@@ -66,7 +67,7 @@ const createOffersTemplate = (offers, selectedOffers, isDisabled) => `
     </div>
   </section>`.split(',').join('\n');
 
-const createEditFormTemplate = (waypoint, destinations, arrayOfOffers) => {
+const createEditFormTemplate = (waypoint, destinations, defaultOffers) => {
   const {basePrice, dateFrom, dateTo, type, destination, offers, isDisabled, isSaving, isDeleting} = waypoint;
 
   const destinationById = destination && destinations && destinations.length > 0
@@ -84,8 +85,8 @@ const createEditFormTemplate = (waypoint, destinations, arrayOfOffers) => {
     : '';
 
   let offersTemplate = '';
-  if (arrayOfOffers?.length > 0) {
-    const offersByType = arrayOfOffers.find((element) => element.type === type)?.offers;
+  if (defaultOffers?.length > 0) {
+    const offersByType = defaultOffers.find((element) => element.type === type)?.offers;
     const selectedOffers = getSelectedOffers(offersByType, offers);
     offersTemplate = offersByType?.length !== 0
       ? createOffersTemplate(offersByType, selectedOffers, isDisabled)
@@ -94,8 +95,8 @@ const createEditFormTemplate = (waypoint, destinations, arrayOfOffers) => {
 
   const createDatalistOfDestinations = () => {
     let listElements = '';
-    for (let i = 0; i < destinations?.length; i++) {
-      listElements += `<option value="${destinations[i].name}">`;
+    for (const versionOfDestination of destinations) {
+      listElements += `<option value="${versionOfDestination.name}">`;
     }
     return listElements;
   };
@@ -186,10 +187,10 @@ const createEditFormTemplate = (waypoint, destinations, arrayOfOffers) => {
               <span class="visually-hidden">Price</span>
               &euro;
             </label>
-            <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" maxlength="6" value="${basePrice ? basePrice : ''}" ${isDisabled ? 'disabled' : ''}>
+            <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" maxlength="6" value="${basePrice ? basePrice : ''}" ${isDisabled} ? 'disabled' : ''}>
           </div>
 
-          <button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled ? 'disabled' : ''}>${isSaving ? 'Saving...' : 'Save'}</button>
+          <button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled || !destinationById || !basePrice ? 'disabled' : ''}>${isSaving ? 'Saving...' : 'Save'}</button>
           <button class="event__reset-btn" type="reset" ${isDisabled ? 'disabled' : ''}>${isDeleting ? 'Deleting...' : 'Delete'}</button>
           <button class="event__rollup-btn" type="button" ${isDisabled ? 'disabled' : ''}>
             <span class="visually-hidden">Open event</span>
@@ -208,35 +209,19 @@ export default class EditFormView extends AbstractStatefulView {
   #datepickerFrom = null;
   #datepickerTo = null;
   #destinations = null;
-  #arrayOfOffers = null;
+  #defaultOffers = null;
 
-  constructor(waypoint, destinations, arrayOfOffers) {
+  constructor(waypoint, destinations, defaultOffers) {
     super();
     this._state = EditFormView.parsePointToState(waypoint);
     this.#destinations = destinations;
-    this.#arrayOfOffers = arrayOfOffers;
+    this.#defaultOffers = defaultOffers;
     this.#setInnerHandlers();
   }
 
   get template() {
-    return createEditFormTemplate(this._state, this.#destinations, this.#arrayOfOffers);
+    return createEditFormTemplate(this._state, this.#destinations, this.#defaultOffers);
   }
-
-  static parsePointToState = (waypoint) => ({...waypoint,
-    isDisabled: false,
-    isSaving: false,
-    isDeleting: false
-  });
-
-  static parseStateToPoint = (state) => {
-    const waypoint = {...state};
-
-    delete waypoint.isDisabled;
-    delete waypoint.isSaving;
-    delete waypoint.isDeleting;
-
-    return waypoint;
-  };
 
   #setInnerHandlers = () => {
     this.element.querySelector('.event__type-group').addEventListener('click', this.#typeChangeHandler);
@@ -301,8 +286,16 @@ export default class EditFormView extends AbstractStatefulView {
       this.updateElement({
         destination: newDestinationId[0].id,
       });
+
+      this._setState({
+        isDestination: true,
+      });
+      this.#validateForm();
     } else {
-      this.element.querySelector('.event__save-btn').disabled = true;
+      this._setState({
+        isDestination: false,
+      });
+      this.#validateForm();
     }
   };
 
@@ -325,12 +318,17 @@ export default class EditFormView extends AbstractStatefulView {
     let newPrice = he.encode(evt.target.value);
     newPrice = Number(newPrice);
     if (newPrice > 0 && Number.isInteger(newPrice)) {
-      this.element.querySelector('.event__save-btn').disabled = false;
       this._setState({
         basePrice: newPrice,
+        isPrice: true,
       });
+      this.#validateForm();
     } else {
-      this.element.querySelector('.event__save-btn').disabled = true;
+      this._setState({
+        basePrice: 0,
+        isPrice: false,
+      });
+      this.#validateForm();
     }
   };
 
@@ -352,6 +350,7 @@ export default class EditFormView extends AbstractStatefulView {
         offers: resultOffersIds,
       });
     }
+    this.#validateForm();
   };
 
   #setDatepickers = () => {
@@ -380,6 +379,22 @@ export default class EditFormView extends AbstractStatefulView {
     }
   };
 
+  #validateForm = () => {
+    if (!this._state.destination) {
+      this._setState({
+        isDestination: false,
+      });
+    }
+
+    if (!this._state.basePrice) {
+      this._setState({
+        isPrice: false,
+      });
+    }
+
+    this.element.querySelector('.event__save-btn').disabled = !this._state.isDestination || !this._state.isPrice;
+  };
+
   reset = (waypoint) => {
     this.updateElement(
       EditFormView.parsePointToState(waypoint),
@@ -393,5 +408,25 @@ export default class EditFormView extends AbstractStatefulView {
       this.#datepickerFrom.destroy();
       this.#datepickerFrom = null;
     }
+  };
+
+  static parsePointToState = (waypoint) => ({...waypoint,
+    isDisabled: false,
+    isSaving: false,
+    isDeleting: false,
+    isDestination: true,
+    isPrice: true,
+  });
+
+  static parseStateToPoint = (state) => {
+    const waypoint = {...state};
+
+    delete waypoint.isDisabled;
+    delete waypoint.isSaving;
+    delete waypoint.isDeleting;
+    delete waypoint.isDestination;
+    delete waypoint.isPrice;
+
+    return waypoint;
   };
 }

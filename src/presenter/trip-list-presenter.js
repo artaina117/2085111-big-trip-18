@@ -2,7 +2,7 @@ import {render, remove, RenderPosition} from '../framework/render.js';
 import TripListView from '../view/trip-list-view.js';
 import SortView from '../view/sort-view.js';
 import NewWaypointPresenter from './new-waypoint-presenter.js';
-import NoWaypointView from '../view/no-waypoints-view.js';
+import NoWaypointView from '../view/no-waypoint-view.js';
 import WaypointPresenter from './waypoint-presenter.js';
 import {SortType, UpdateType, UserAction, FilterType} from '../utils/const.js';
 import {sortByTime, sortByPrice, sortByDay} from '../utils/waypoint.js';

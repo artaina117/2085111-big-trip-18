@@ -63,16 +63,15 @@ const sortByDay = (a, b) => {
   const diff = aDate - bDate;
   if (diff !== 0) {
     return diff;
-  } else {
-    const bTime = dayjs(b.dateFrom).format('H');
-    const aTime = dayjs(a.dateFrom).format('H');
-    return aTime - bTime;
   }
+  const bTime = dayjs(b.dateFrom).format('H');
+  const aTime = dayjs(a.dateFrom).format('H');
+  return aTime - bTime;
 };
 
-const compareTime = (object, element) => {
-  const date1 = dayjs(object.dateFrom);
-  const date2 = dayjs(object.dateTo);
+const compareTime = (waypoint, element) => {
+  const date1 = dayjs(waypoint.dateFrom);
+  const date2 = dayjs(waypoint.dateTo);
   const diff = date2.diff(date1, 'minutes');
   if (diff < 0) {
     element.querySelector('.event__save-btn').disabled = true;

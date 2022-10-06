@@ -4,7 +4,7 @@ import {UserAction, UpdateType} from '../utils/const.js';
 import dayjs from 'dayjs';
 
 const BLANK_POINT = {
-  basePrice : '',
+  basePrice : null,
   dateFrom: dayjs().toDate(),
   dateTo: dayjs().toDate(),
   destination : null,
@@ -43,7 +43,7 @@ export default class NewWaypointPresenter {
 
     render(this.#waypointEditComponent, this.#waypointListContainer, RenderPosition.AFTERBEGIN);
 
-    document.addEventListener('keydown', this.#onEscKeyDown);
+    document.addEventListener('keydown', this.#handleEscKeyDown);
   };
 
   destroy = () => {
@@ -56,10 +56,10 @@ export default class NewWaypointPresenter {
     remove(this.#waypointEditComponent);
     this.#waypointEditComponent = null;
 
-    document.removeEventListener('keydown', this.#onEscKeyDown);
+    document.removeEventListener('keydown', this.#handleEscKeyDown);
   };
 
-  #onEscKeyDown = (evt) => {
+  #handleEscKeyDown = (evt) => {
     if (evt.key === 'Escape' || evt.key === 'Esc') {
       evt.preventDefault();
       this.destroy();
